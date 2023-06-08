@@ -31,8 +31,21 @@
       html,
       body {
         height: 100%;
+        width: 100%;
         margin: 0;
+        overflow: hidden;
         background-color: #000000;
+      }
+
+      canvas {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      #game {
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
     </style>
 
@@ -48,6 +61,6 @@
     </script> -->
   </head>
   <body>
-    <div id="game"></div>
+    <div id="game" style="height: 100%; width: 100%;"></div>
   </body>
 </html>
