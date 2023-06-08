@@ -1,50 +1,50 @@
-import { NOOP } from '../utils/NOOP'
-
 export class RequestAnimationFrame {
-    public isRunning: boolean
-    /* adds delay and the option to use setTimeout
+    public isRunning = false
+    /* TODO: adds delay and the option to use setTimeout
      instead of RAF to provide delayed start */
-    public timeOutID: number | null
-    public callback: RAFCallback
+    public timeOutID: number | undefined = undefined
+    public callback: ((time: number) => void) | undefined = undefined
 
     constructor() {
-        this.isRunning = false
-        this.timeOutID = null
-        this.callback = NOOP
-        this.step = this.step.bind(this) // bind the step function to the RAF instance
+        // bind the step function to the RAF instance
+        this.step = this.step.bind(this)
     }
 
-    public step(time: number) {
-        this.callback(time)
+    private step(time: number) {
+        this.callback?.(time)
 
         if (this.isRunning) {
             this.timeOutID = window.requestAnimationFrame(this.step)
         }
     }
 
-    public start(callback: RAFCallback) {
+    public start(callback: (time: number) => void) {
         if (this.isRunning) {
+            console.warn('RequestAnimationFrame: start() called while already running')
             return
         }
 
-        this.isRunning = true
         this.callback = callback
         this.timeOutID = window.requestAnimationFrame(this.step)
+
+        this.isRunning = true
     }
 
     public stop() {
-        this.isRunning = false
-
-        if (this.timeOutID) {
-            window.cancelAnimationFrame(this.timeOutID)
-            this.timeOutID = null
-        } else {
-            console.warn('RequestAnimationFrame: stop() called before start()')
+        if (!this.isRunning || !this.timeOutID) {
+            console.warn('RequestAnimationFrame: stop() called while not running')
+            return
         }
+
+        // cancel any pending animation frame requests
+        window.cancelAnimationFrame(this.timeOutID)
+        this.timeOutID = undefined
+
+        this.isRunning = false
     }
 
     public destroy() {
         this.stop()
-        this.callback = NOOP
+        this.callback = undefined
     }
 }
