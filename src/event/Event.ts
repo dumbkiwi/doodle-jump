@@ -1,4 +1,4 @@
-export class EventManager<T extends GameEvent, A extends Object | undefined = undefined> {
+export class EventManager<T extends EngineEvent, A extends Object | undefined = undefined> {
     private _listeners: {
         [key: string]: {
             once: boolean

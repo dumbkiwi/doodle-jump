@@ -1,5 +1,7 @@
-type RuntimeEvent = 'update' | 'start' | 'stop' | 'destroy' | 'error'
+type GameEvent = 'start' | 'update' | 'pause' | 'resume' | 'stop' | 'destroy'
 
 type ColliderEvent = 'collisionEnter' | 'collisionExit' | 'collisionStay'
 
-type GameEvent = RuntimeEvent | ColliderEvent
+type RuntimeEvent = 'error'
+
+type EngineEvent = GameEvent | ColliderEvent | RuntimeEvent

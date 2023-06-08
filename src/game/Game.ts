@@ -5,9 +5,12 @@ import { GameObject } from '../game-object/GameObject'
 export class Game {
     public canvas: HTMLCanvasElement
     public context: CanvasRenderingContext2D
-    public events: EventManager<RuntimeEvent, number>
-    public runtimeState: RuntimeEvent = 'update' // TODO: implement runtime state
+    public events: EventManager<GameEvent, number>
 
+    private runtimeEventManager: EventManager<RuntimeEvent, string> = new EventManager<
+        RuntimeEvent,
+        string
+    >()
     private _gameObjects: GameObject[]
     private raf: RequestAnimationFrame
     private lastFrameTime: number
@@ -19,7 +22,11 @@ export class Game {
     }
 
     constructor(gameObjects: GameObject[], viewportSize?: Vector2D) {
-        this.events = new EventManager<RuntimeEvent, number>()
+        this.runtimeEventManager.on('error', (error) => {
+            console.trace(`Game stopped be cause of a fatal: ${error}. Stack trace:`)
+            this.stop()
+        })
+        this.events = new EventManager<GameEvent, number>()
         this.raf = new RequestAnimationFrame()
 
         this.hasInitialized = false
@@ -63,13 +70,6 @@ export class Game {
     }
 
     public update() {
-        // stop the game if the runtime state is error
-        if (this.runtimeState === 'error') {
-            console.error('Runtime state is error')
-            this.stop()
-            return
-        }
-
         // clear the canvas
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
