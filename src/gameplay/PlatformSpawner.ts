@@ -1,198 +1,161 @@
 import { Collider } from '../collider/Collider'
-import { GameObject } from '../game-object/GameObject'
-import { Platform, PlatformConfig } from '../platform/Platform'
+import { RectangleCollider } from '../collider/RectangleCollider'
+import { GameObjectNew } from '../game-object/GameObject'
+import { Game } from '../game/Game'
+import { Platform } from '../platform/Platform'
 
-const MAX_SPAWN_ATTEMPT = 100
-
-export type PlatformSpawnerConfig = {
-    scrollViewObject: GameObject
-    spawnParentObject: GameObject
-    spawnColliderObject: GameObject
-    destroyColliderObject: GameObject
+export type PlatformSpawnerConfig = Partial<GameObjectConfig> & {
+    canvasSize: Vector2D
+    spawnArea: {
+        size: Vector2D
+        position: Vector2D
+    }
+    despawnArea: {
+        size: Vector2D
+        position: Vector2D
+    }
+    spawnParentObject: GameObjectNew
     platformTemplate: PlatformConfig
-    minimumDistanceBetweenPlatforms: number
-    minimunNumberOfPlatforms: number
 }
 
-export class PlatformSpawner extends GameObject {
-    private scrollViewObject: GameObject
-    private minimumDistanceBetweenPlatforms: number
-    private minimunNumberOfPlatforms: number
-    private spawnParentObject: GameObject
-    private platformPool: Platform[] = []
-    private spawnedPlatforms: Platform[] = []
-    private platformTemplate: PlatformConfig
+export class PlatformSpawner extends GameObjectNew {
+    private spawnParentObject: GameObjectNew
     private spawnCollider: Collider
+    private despawnCollider: Collider
+    private platformTemplate: PlatformConfig
+    private platformDistanceRange: [number, number]
+    private spawned: Platform[]
+    private pool: Platform[]
 
     constructor(config: PlatformSpawnerConfig) {
-        super()
+        const spawnCollider = new RectangleCollider({
+            tag: 'PlatformSpawner',
+            x: config.spawnArea.position.x,
+            y: config.spawnArea.position.y,
+            width: config.spawnArea.size.x,
+            height: config.spawnArea.size.y,
+        })
 
-        this.spawnParentObject = config.spawnParentObject
-        this.platformTemplate = config.platformTemplate
-        this.minimumDistanceBetweenPlatforms = config.minimumDistanceBetweenPlatforms
-        this.minimunNumberOfPlatforms = config.minimunNumberOfPlatforms
-        this.scrollViewObject = config.scrollViewObject
+        const despawnCollider = new RectangleCollider({
+            tag: 'PlatformSpawner',
+            x: config.despawnArea.position.x,
+            y: config.despawnArea.position.y,
+            width: config.despawnArea.size.x,
+            height: config.despawnArea.size.y,
+        })
 
-        const spawnCollider = config.spawnColliderObject.getComponent('Collider') as Collider
+        spawnCollider.on('collisionExit', (other) => {
+            if (other.tag === 'Platform') {
+                // if a platform leaves, spawn a platform
+                this.trySpawnPlatform()
+            }
+        })
 
-        if (!spawnCollider) {
-            throw new Error('Spawn collider object must have a collider component')
-        }
+        despawnCollider.on('collisionEnter', (other) => {
+            // if it is a platform and it was created by this spawner
+            if (
+                other.tag === 'Platform' &&
+                other.gameObject instanceof Platform &&
+                this.spawned.includes(other.gameObject)
+            ) {
+                // if a platform enters, despawn it
+                this.recyclePlatform(other.gameObject)
+            }
+        })
+
+        super({
+            startActive: config.startActive,
+            parent: config.parent,
+            children: config.children
+                ? [...config.children, spawnCollider, despawnCollider]
+                : [spawnCollider, despawnCollider],
+        })
 
         this.spawnCollider = spawnCollider
+        this.despawnCollider = despawnCollider
+        this.spawnParentObject = config.spawnParentObject
+        this.platformTemplate = config.platformTemplate
+        this.spawned = []
+    }
 
-        spawnCollider.on('collisionExit', (_other) => {
-            const length = spawnCollider.collidingColliders.filter(
-                (collider) => collider.tag === 'Platform'
-            ).length
-            if (length < this.minimunNumberOfPlatforms) {
-                this.spawnPlatforms(this.minimunNumberOfPlatforms - length)
-            }
-        })
-
-        const destroyCollider = config.destroyColliderObject.getComponent('Collider') as Collider
-
-        if (!destroyCollider) {
-            throw new Error('Destroy collider object must have a collider component')
+    protected override onStart = (): void => {
+        // game should be set already
+        if (this.game === undefined) {
+            throw new Error('Game is not set')
         }
 
-        destroyCollider.on('collisionEnter', (other) => {
-            if (other.tag === 'Platform') {
-                this.recyclePlatform(other.gameObject as Platform)
-            }
-        })
+        // spawn initial platforms
+        this.spawnPlatform(this.game)
     }
 
-    public override start() {
-        super.start()
-        // spawn 1 platform
-        this.spawnPlatforms()
+    private trySpawnPlatform() {
+        // game should be set already
+        if (this.game === undefined) {
+            throw new Error('Game is not set')
+        }
+
+        // if there's no game object,
+        // if there is no platform colling with the spawn collider
+        if (
+            !this.spawnCollider.collidingColliders.some((collider) => collider.tag === 'Platform')
+        ) {
+            this.spawnPlatform(this.game)
+        }
     }
 
-    private spawnPlatforms(numberOfPlatforms = 1) {
+    private spawnPlatform(game: Game) {
         // set spawn range to be the same as the collider's range
         const spawnRange = {
-            x: [
-                this.spawnCollider.left - this.scrollViewObject.transform.localPosition.x,
-                this.spawnCollider.right - this.scrollViewObject.transform.localPosition.x,
-            ],
-            y: [
-                this.spawnCollider.top - this.scrollViewObject.transform.localPosition.y,
-                this.spawnCollider.bottom - this.scrollViewObject.transform.localPosition.y,
-            ],
+            x: [this.spawnCollider.left, this.spawnCollider.right],
+            y: [this.spawnCollider.top, this.spawnCollider.bottom],
         }
 
-        for (let i = 0, j = 0; i < MAX_SPAWN_ATTEMPT && j < numberOfPlatforms; i++) {
-            const SpawnPosition = {
-                x: Math.random() * (spawnRange.x[1] - spawnRange.x[0]) + spawnRange.x[0],
-                y: Math.random() * (spawnRange.y[1] - spawnRange.y[0]) + spawnRange.y[0],
-            }
-
-            if (this.isOverlappingWithOtherPlatforms(SpawnPosition)) {
-                continue
-            }
-
-            this.createPlatform(SpawnPosition)
-            j++
+        const spawnPosition = {
+            x: Math.random() * (spawnRange.x[1] - spawnRange.x[0]) + spawnRange.x[0],
+            y: Math.random() * (spawnRange.y[1] - spawnRange.y[0]) + spawnRange.y[0],
         }
 
-        if (this.platformPool.length < numberOfPlatforms - 1) {
-            console.warn('Failed to spawn platform due to max spawn attempt reached')
-        }
-    }
+        // get platform from the pool
+        let platform = this.spawned.pop()
 
-    private createPlatform(position: Vector2D) {
-        if (!this.game) {
-            console.warn('Game is not set on platform spawner')
-            return
+        if (platform === undefined) {
+            platform = new Platform({
+                ...this.platformTemplate,
+                position: spawnPosition,
+            })
         }
-
-        // if there are no platforms in the pool
-        // create a new platform
-        // else get a platform from the pool
-        const platform =
-            this.platformPool.length === 0
-                ? new Platform(this.platformTemplate)
-                : (this.platformPool.pop() as Platform)
 
         //   init the platform
-        platform.init(this.game)
-
-        // change the platform's transform position
-        platform.transform.localPosition.x = position.x
-        platform.transform.localPosition.y = position.y
+        platform.init(game)
 
         // add the platform to the spawned platforms array
         // and add it to the parent object
-        this.spawnedPlatforms.push(platform)
-        this.spawnParentObject.addGameObject(platform)
+        this.spawned.push(platform)
+        this.spawnParentObject.addChildren(platform)
     }
 
     private recyclePlatform(platform: Platform) {
         // if platform is in the spawned platforms array
         // remove it from the parent object and add it to the platform pool
         // else do nothing
-        if (this.spawnedPlatforms.includes(platform)) {
-            this.tryDisconnectPlatformFromParent(platform)
-            this.platformPool.push(platform)
+        if (this.spawned.includes(platform)) {
+            // set platform to be inactive
+            platform.setActive(false)
+
+            // remove the platform from the parent object
+            this.RemovePlatformFromParent(platform)
+
+            // remove the platform from the spawned platforms array
+            this.spawned.splice(this.spawned.indexOf(platform), 1)
+
+            // add the platform to the pool
+            this.pool.push(platform)
         }
     }
 
-    private tryDisconnectPlatformFromParent(platform: Platform) {
-        if (platform.parent) {
-            platform.parent?.removeGameObject(platform)
-            platform.parent = undefined
+    private RemovePlatformFromParent(platform: Platform) {
+        if (platform.getParent() !== undefined) {
+            platform.removeChildren(platform)
         }
-    }
-
-    private isOverlappingWithOtherPlatforms(point: Vector2D) {
-        // checks if 4 corners of the platform are overlapping with other platforms
-        // if so return true
-        // else return false
-
-        this.spawnedPlatforms.forEach((platform) => {
-            const collider = platform.getComponent('Collider') as Collider
-            // topleft
-            if (
-                collider.isPointInCollider(
-                    point.x - this.minimumDistanceBetweenPlatforms,
-                    point.y - this.minimumDistanceBetweenPlatforms
-                )
-            ) {
-                return true
-            }
-
-            // topright
-            if (
-                collider.isPointInCollider(
-                    point.x + this.platformTemplate.width - this.minimumDistanceBetweenPlatforms,
-                    point.y - this.minimumDistanceBetweenPlatforms
-                )
-            ) {
-                return true
-            }
-
-            // bottomleft
-            if (
-                collider.isPointInCollider(
-                    point.x + this.minimumDistanceBetweenPlatforms,
-                    point.y + this.platformTemplate.height + this.minimumDistanceBetweenPlatforms
-                )
-            ) {
-                return true
-            }
-
-            // bottomright
-            if (
-                collider.isPointInCollider(
-                    point.x + this.platformTemplate.width + this.minimumDistanceBetweenPlatforms,
-                    point.y + this.platformTemplate.height + this.minimumDistanceBetweenPlatforms
-                )
-            ) {
-                return true
-            }
-        })
-
-        return false
     }
 }

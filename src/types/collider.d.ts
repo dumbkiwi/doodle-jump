@@ -19,4 +19,11 @@ type ColliderConfig = {
     onCollisionStay?: (other: Collider) => void | undefined
 }
 
-type ColliderTag = 'Default' | 'Player' | 'Platform' | 'Wall' | 'Ceiling' | 'PlatformSpawner'
+type ColliderTag =
+    | 'Default'
+    | 'Player'
+    | 'Platform'
+    | 'Wall'
+    | 'Ceiling'
+    | 'PlatformSpawner'
+    | 'Trigger'
