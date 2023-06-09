@@ -14,7 +14,7 @@ export abstract class GameObjectNew {
     protected transform: Transform
     protected onStart: (() => void) | undefined
     protected onUpdate: ((delta: number) => void) | undefined
-    protected onStop: (() => void) | undefined
+    protected onDestroy: (() => void) | undefined
 
     constructor(config: Partial<GameObjectConfig>) {
         this.isDestroyed = false
@@ -71,19 +71,6 @@ export abstract class GameObjectNew {
         this.onUpdate?.(delta)
     }
 
-    private stop(): void {
-        // if not active, return
-        if (!this.isActive) {
-            return
-        }
-
-        // TODO: implement stop for components
-        // this.components.forEach((component) => component.stop())
-
-        this.children.forEach((child) => child.stop())
-        this.onStop?.()
-    }
-
     public destroy(): void {
         // if destroyed, throw error
         if (this.isDestroyed) {
@@ -101,6 +88,8 @@ export abstract class GameObjectNew {
 
         // set destroyed
         this.isDestroyed = true
+
+        this.onDestroy?.()
     }
 
     // utils
