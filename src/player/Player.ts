@@ -1,7 +1,7 @@
 import { Collider } from '../collider/Collider'
-import { GameObject } from '../game-object/GameObject'
+import { GameObjectNew } from '../game-object/GameObject'
 
-export class Player extends GameObject {
+export class Player extends GameObjectNew {
     public control: {
         left: boolean
         right: boolean

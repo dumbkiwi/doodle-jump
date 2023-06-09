@@ -7,10 +7,7 @@ import { SpriteRenderer } from '../sprite-renderer/SpriteRenderer'
 export class Platform extends GameObjectNew {
     constructor(config: PlatformConfig) {
         const platformChildren = [
-            new SpriteRenderer({
-                ...config.spriteRendererConfig,
-                size: config.size,
-            }),
+            new SpriteRenderer(config.spriteRendererConfig),
             new RectangleCollider({
                 tag: 'Platform',
                 x: 0, // offset from this transform
