@@ -1,27 +1,37 @@
 import { Collider } from '../collider/Collider'
+import { RectangleCollider } from '../collider/RectangleCollider'
 import { GameObjectNew } from '../game-object/GameObject'
+import { Game } from '../game/Game'
 
 export class Player extends GameObjectNew {
-    public control: {
+    private control: {
         left: boolean
         right: boolean
     }
-    public speed: number
-    public gravity: number
-    public friction: number
-
-    public collider: Collider
+    private speed: number
+    private gravity: number
+    private friction: number
+    private collider: Collider
 
     constructor(config: PlayerConfig) {
-        super()
+        const collider = new RectangleCollider({
+            tag: 'Player',
+            x: 0, // offset from this transform
+            y: 0, // offset from this transform
+            width: config.size.x,
+            height: config.size.y,
+        })
+        const playerChildren = [collider]
+        super({
+            startActive: config.startActive,
+            parent: config.parent,
+            children: [config.children ? [...config.children, ...playerChildren] : playerChildren],
+        })
 
         this.speed = config.speed
         this.gravity = config.gravity
         this.friction = config.friction
-        this.collider = config.groundCollider
-
-        // add collider to player
-        this.addComponent(this.collider)
+        this.collider = collider
 
         this.control = {
             left: false,
@@ -29,8 +39,8 @@ export class Player extends GameObjectNew {
         }
     }
 
-    public override start() {
-        super.start()
+    public override init(game: Game): void {
+        super.init(game)
 
         // subscribe velocity control to keydown event
         document.addEventListener('keydown', this.onKeyDown.bind(this))
@@ -39,12 +49,7 @@ export class Player extends GameObjectNew {
         document.addEventListener('keyup', this.onKeyUp.bind(this))
     }
 
-    public override update(delta: number): void {
-        if (this.transform === undefined) {
-            console.error('Player: transform is undefined')
-            return
-        }
-
+    protected override onUpdate = (delta: number): void => {
         // move player based on control
         let moveDirection = 0
         if (this.control.left) {
@@ -60,8 +65,6 @@ export class Player extends GameObjectNew {
         this.collider.velocity.y += this.gravity / delta
         this.collider.velocity.y /= this.friction
         this.transform.localPosition.y += this.collider.velocity.y
-
-        super.update(delta)
     }
 
     private onKeyDown(keydown: KeyboardEvent) {
