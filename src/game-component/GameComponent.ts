@@ -1,8 +1,10 @@
 import { GameObject } from '../game-object/GameObject'
+import { IRuntimeObject } from '../runtime-object/IRuntimeObject'
 
-export abstract class GameComponentNew {
-    protected gameObject: GameObject | undefined
+export abstract class GameComponentNew implements IRuntimeObject {
+    protected isActive: boolean
     protected isDestroyed: boolean
+    protected gameObject: GameObject | undefined
     protected onStart: (() => void) | undefined
     protected onUpdate: ((delta: number) => void) | undefined
     protected onDestroy: (() => void) | undefined
@@ -37,6 +39,12 @@ export abstract class GameComponentNew {
         this.isDestroyed = true
 
         this.onDestroy?.()
+    }
+    public setActive(value: boolean): void {
+        this.isActive = value
+    }
+    public getActive(): boolean {
+        return this.isActive
     }
 }
 export abstract class GameComponent {
