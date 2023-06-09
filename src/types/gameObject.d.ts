@@ -1,5 +1,6 @@
 type GameObjectConfig = {
-    parent?: GameObject
-    children?: GameObject[]
-    components?: GameComponent[]
+    startActive: boolean
+    parent: GameObject
+    children: GameObject[]
+    components: GameComponent[]
 }
