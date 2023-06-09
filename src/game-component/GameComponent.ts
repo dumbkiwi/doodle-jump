@@ -26,9 +26,18 @@ export abstract class GameComponentNew implements IRuntimeObject {
         // TODO: subscribe start, update to game events
     }
     private start(): void {
+        // if not active, return
+        if (!this.isActive) {
+            return
+        }
         this.onStart?.()
     }
     private update(delta: number): void {
+        // if not active, return
+        if (!this.isActive) {
+            return
+        }
+
         this.onUpdate?.(delta)
     }
     public destroy(): void {

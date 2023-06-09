@@ -1,10 +1,10 @@
 import { Collider } from '../collider/Collider'
 import { GameComponent } from '../game-component/GameComponent'
 import { Game } from '../game/Game'
+import { IRuntimeObject } from '../runtime-object/IRuntimeObject'
 import { Transform } from '../transform/Transform'
 
-
-export abstract class GameObjectNew {
+export abstract class GameObjectNew implements IRuntimeObject {
     protected isActive: boolean
     protected isDestroyed: boolean
     protected game: Game | undefined
