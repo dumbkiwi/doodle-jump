@@ -21,8 +21,15 @@ export abstract class GameObjectNew implements IRuntimeObject {
 
         this.isActive = config.startActive ?? true
         this.parent = config.parent
-        this.children = [...(config.children ?? [])]
-        this.components = [...(config.components ?? [])]
+
+        // add children
+        const children = [...(config.children ?? [])]
+        children.forEach((child) => this.addChildren(child))
+
+        // add components
+        const components = [...(config.components ?? [])]
+        components.forEach((component) => this.addComponent(component))
+
         this.transform = this.createTransform()
     }
 
