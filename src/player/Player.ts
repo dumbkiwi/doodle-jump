@@ -1,9 +1,9 @@
 import { Collider } from '../collider/Collider'
 import { RectangleCollider } from '../collider/RectangleCollider'
-import { GameObjectNew } from '../game-object/GameObject'
+import { GameObject } from '../game-object/GameObject'
 import { Game } from '../game/Game'
 
-export class Player extends GameObjectNew {
+export class Player extends GameObject {
     private control: {
         left: boolean
         right: boolean
