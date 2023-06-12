@@ -1,10 +1,10 @@
 import { canvasSize } from '../canvasSize'
 import { Collider } from '../collider/Collider'
 import { RectangleCollider } from '../collider/RectangleCollider'
-import { GameObjectNew } from '../game-object/GameObject'
+import { GameObject } from '../game-object/GameObject'
 import { SpriteRenderer } from '../sprite-renderer/SpriteRenderer'
 
-export class Platform extends GameObjectNew {
+export class Platform extends GameObject {
     constructor(config: PlatformConfig) {
         const platformChildren = [
             new SpriteRenderer(config.spriteRendererConfig),

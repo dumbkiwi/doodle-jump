@@ -1,6 +1,6 @@
 import { Collider } from '../collider/Collider'
 import { RectangleCollider } from '../collider/RectangleCollider'
-import { GameObjectNew } from '../game-object/GameObject'
+import { GameObject } from '../game-object/GameObject'
 import { Game } from '../game/Game'
 import { Platform } from '../platform/Platform'
 
@@ -14,12 +14,12 @@ export type PlatformSpawnerConfig = Partial<GameObjectConfig> & {
         size: Vector2D
         position: Vector2D
     }
-    spawnParentObject: GameObjectNew
+    spawnParentObject: GameObject
     platformTemplate: PlatformConfig
 }
 
-export class PlatformSpawner extends GameObjectNew {
-    private spawnParentObject: GameObjectNew
+export class PlatformSpawner extends GameObject {
+    private spawnParentObject: GameObject
     private spawnCollider: Collider
     private despawnCollider: Collider
     private platformTemplate: PlatformConfig
