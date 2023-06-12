@@ -8,29 +8,25 @@ import { canvasSize } from './canvasSize'
 import { ScrollView } from './scrollView/ScrollView'
 import { RectangleCollider } from './collider/RectangleCollider'
 import { GameObject } from './game-object/GameObject'
-import { Platform, PlatformConfig } from './platform/Platform'
-import { SpriteRenderer } from './sprite-renderer/SpriteRenderer'
+import { Platform } from './platform/Platform'
 import { PlatformSpawner } from './gameplay/PlatformSpawner'
 import { Transform } from './transform/Transform'
 import { ScoreCounter } from './score-counter/ScoreCounter'
 
-// ceiling to simulate camera movement
-const ceilingGameObject = new GameObject({
-    components: [
-        new RectangleCollider({
-            tag: 'Ceiling',
-            x: 0,
-            y: -canvasSize.y,
-            width: canvasSize.x,
-            height: canvasSize.y / 6,
-        }),
-    ],
-})
 
 const scrollViewGameObject = new ScrollView({
     smoothing: 0.07,
     playerCollider: player.getComponent('Collider') as RectangleCollider,
-    ceilingObject: ceilingGameObject,
+    triggerArea: {
+        size: {
+            x: canvasSize.x,
+            y: canvasSize.y / 2,
+        },
+        position: {
+            x: 0,
+            y: canvasSize.y / 2,
+        },
+    },
     viewportSize: {
         x: canvasSize.x,
         y: canvasSize.y,
@@ -39,104 +35,86 @@ const scrollViewGameObject = new ScrollView({
 
 // platform template
 const platformTemplate: PlatformConfig = {
+    spriteRendererConfig: {
+        baseColor: 'black',
+        size: {
+            x: 100,
+            y: 20,
+        },
+    },
     scrollView: scrollViewGameObject,
     scrollViewPadding: 50,
-    x: 0,
-    y: 0,
+    position: {
+        x: 0,
+        y: 0,
+    },
     color: 'black',
-    width: 100,
-    height: 20,
+    size: {
+        x: 100,
+        y: 20,
+    },
     bounciness: 8,
 } as const
 
 // helper platforms
 const defaultPlatform = new Platform({
     ...platformTemplate,
-    x: canvasSize.x / 2 - 50,
-    y: canvasSize.y / 2 + 200,
+    position: {x: canvasSize.x / 2 - 50,
+    y: canvasSize.y / 2 + 200,}
 })
 
 const defaultPlatform2 = new Platform({
     ...platformTemplate,
-    x: canvasSize.x / 2 - 150,
-    y: canvasSize.y / 2,
+    position: {x: canvasSize.x / 2 - 150,
+    y: canvasSize.y / 2,}
 })
 
 const defaultPlatform3 = new Platform({
     ...platformTemplate,
-    x: canvasSize.x / 2 + 50,
-    y: canvasSize.y / 2 - 200,
+    position: {x: canvasSize.x / 2 + 50,
+    y: canvasSize.y / 2 - 200,}
 })
 
 const defaultPlatform4 = new Platform({
     ...platformTemplate,
-    x: canvasSize.x / 2 - 100,
-    y: canvasSize.y / 2 - 400,
+    position: {x: canvasSize.x / 2 - 100,
+    y: canvasSize.y / 2 - 400,}
 })
+
+// get scroll view
+const view = scrollViewGameObject.getScrollViewGameObject()
 
 // adds playable objects: platforms and player to the scrollView
 const playables = [player, defaultPlatform, defaultPlatform2, defaultPlatform3, defaultPlatform4]
 playables.forEach((playable) => {
-    scrollViewGameObject.addGameObject(playable)
+    view.addChildren(playable)
 })
 
 // platform spawner
-// spawner's spawn collider
-const spawnColliderGameObject = new GameObject({
-    components: [
-        new Transform({
-            position: {
-                x: 0,
-                y: -240,
-            },
-        }),
-        new RectangleCollider({
-            tag: 'PlatformSpawner',
+const spawner = new PlatformSpawner({
+    canvasSize: canvasSize,
+    spawnArea: {
+        size: {
+            x: canvasSize.x - 100,
+            y: 240,
+        },
+        position: {
             x: 0,
-            // above the screen
             y: -240,
-            width: canvasSize.x - 100,
-            height: 240,
-        }),
-    ],
-})
-
-// spawner's destroy collider
-const destroyColliderGameObject = new GameObject({
-    components: [
-        new Transform({
-            position: {
-                x: 0,
-                y: canvasSize.y + 100,
-            },
-        }),
-        new RectangleCollider({
-            tag: 'PlatformSpawner',
+        },
+    },
+    despawnArea: {
+        size: {
+            x: canvasSize.x,
+            y: canvasSize.y,
+        },
+        position: {
             x: 0,
             y: canvasSize.y,
-            width: canvasSize.x,
-            height: canvasSize.y,
-        }),
-        // debug sprite
-        new SpriteRenderer({
-            baseColor: 'red',
-            size: {
-                x: canvasSize.x,
-                y: canvasSize.y,
-            },
-        }),
-    ],
-})
-
-// platform spawner
-const platformSpawnerGameObject = new PlatformSpawner({
-    scrollViewObject: scrollViewGameObject,
-    spawnParentObject: scrollViewGameObject,
-    spawnColliderObject: spawnColliderGameObject,
-    destroyColliderObject: destroyColliderGameObject,
-    platformTemplate,
-    minimumDistanceBetweenPlatforms: 50,
-    minimunNumberOfPlatforms: 1,
+        },
+    },
+    spawnParentObject: view,
+    platformTemplate: platformTemplate,
 })
 
 // score counter
@@ -167,10 +145,7 @@ const doodle = new Game(
         fpsCounterGameObject,
         scoreCounterObject,
         scrollViewGameObject,
-        platformSpawnerGameObject,
-        spawnColliderGameObject,
-        destroyColliderGameObject,
-        ceilingGameObject,
+        spawner,
     ],
     canvasSize
 )
