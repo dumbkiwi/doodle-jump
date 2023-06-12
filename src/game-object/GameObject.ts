@@ -4,12 +4,12 @@ import { Game } from '../game/Game'
 import { IRuntimeObject } from '../runtime-object/IRuntimeObject'
 import { Transform } from '../transform/Transform'
 
-export abstract class GameObjectNew implements IRuntimeObject {
+export class GameObject implements IRuntimeObject {
     protected isActive: boolean
     protected isDestroyed: boolean
     protected game: Game | undefined
-    protected parent: GameObjectNew | undefined
-    protected children: GameObjectNew[]
+    protected parent: GameObject | undefined
+    protected children: GameObject[]
     protected components: GameComponent[]
     protected transform: Transform
     protected onStart: (() => void) | undefined
@@ -133,12 +133,12 @@ export abstract class GameObjectNew implements IRuntimeObject {
         return this.components.splice(index, 1)[0]
     }
     //// game objects
-    public addChildren(gameObject: GameObjectNew): GameObjectNew {
+    public addChildren(gameObject: GameObject): GameObject {
         this.children.push(gameObject)
         gameObject.setParent(this)
         return gameObject
     }
-    public removeChildren(gameObject: GameObjectNew): GameObjectNew {
+    public removeChildren(gameObject: GameObject): GameObject {
         gameObject.setParent(undefined)
         const index = this.children.indexOf(gameObject)
         if (index === -1) {
@@ -147,23 +147,23 @@ export abstract class GameObjectNew implements IRuntimeObject {
 
         return this.children.splice(index, 1)[0]
     }
-    public getChildren(): GameObjectNew[] {
+    public getChildren(): GameObject[] {
         return this.children
     }
-    public getParent(): GameObjectNew | undefined {
+    public getParent(): GameObject | undefined {
         return this.parent
     }
-    public setParent(parent: GameObjectNew | undefined): void {
+    public setParent(parent: GameObject | undefined): void {
         this.parent = parent
     }
 }
 
-export class GameObject {
+export class GameObjectOld {
     private _components: GameComponent[] = []
     private _game: Game | undefined = undefined
     private _transform: Transform
-    private _parent: GameObject | undefined = undefined
-    private _children: GameObject[] = []
+    private _parent: GameObjectOld | undefined = undefined
+    private _children: GameObjectOld[] = []
 
     public get components(): GameComponent[] {
         return this._components
@@ -193,19 +193,19 @@ export class GameObject {
         this._transform = value
     }
 
-    public get parent(): GameObject | undefined {
+    public get parent(): GameObjectOld | undefined {
         return this._parent
     }
 
-    public set parent(value: GameObject | undefined) {
+    public set parent(value: GameObjectOld | undefined) {
         this._parent = value
     }
 
-    public get children(): GameObject[] {
+    public get children(): GameObjectOld[] {
         return this._children
     }
 
-    public set children(value: GameObject[]) {
+    public set children(value: GameObjectOld[]) {
         this._children = value
     }
 
@@ -234,7 +234,7 @@ export class GameObject {
             // transform must have been added to components already
             // init the transform component
             this._transform = transform
-            this._transform.gameObject = this
+            // this._transform.gameObject = this
         }
 
         // init children
@@ -257,7 +257,7 @@ export class GameObject {
         this.game = game
 
         for (const component of this.components) {
-            component.init(this)
+            // component.init(this)
         }
 
         for (const child of this.children) {
@@ -330,13 +330,13 @@ export class GameObject {
         return this.getComponents('Collider') as Collider[]
     }
 
-    public addGameObject(gameObject: GameObject) {
+    public addGameObject(gameObject: GameObjectOld) {
         this.children.push(gameObject)
 
         gameObject.parent = this
     }
 
-    public removeGameObject(gameObject: GameObject) {
+    public removeGameObject(gameObject: GameObjectOld) {
         const index = this.children.indexOf(gameObject)
 
         if (index !== -1) {
