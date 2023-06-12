@@ -10,10 +10,8 @@ export class Platform extends GameObject {
             new SpriteRenderer(config.spriteRendererConfig),
             new RectangleCollider({
                 tag: 'Platform',
-                x: 0, // offset from this transform
-                y: 0, // offset from this transform
-                width: config.size.x,
-                height: config.size.y,
+                position: config.position,
+                size: config.size,
                 onCollisionEnter: (other: Collider) => {
                     if (other.tag === 'Player') {
                         // if player is falling down
