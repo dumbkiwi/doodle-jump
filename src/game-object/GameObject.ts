@@ -22,15 +22,15 @@ export class GameObject implements IRuntimeObject {
         this.isActive = config.startActive ?? true
         this.parent = config.parent
 
+        this.transform = this.createTransform()
+
         // add children
         const children = [...(config.children ?? [])]
         children.forEach((child) => this.addChildren(child))
 
         // add components
-        const components = [...(config.components ?? [])]
+        const components = [...(config.components ?? []), this.transform]
         components.forEach((component) => this.addComponent(component))
-
-        this.transform = this.createTransform()
     }
 
     protected createTransform(): Transform {
@@ -50,7 +50,8 @@ export class GameObject implements IRuntimeObject {
 
         this.game = game
 
-        // TODO: subscribe start, update and stop to game events
+        this.game.events.on('start', this.start)
+        this.game.events.on('update', this.update)
     }
 
     private start(): void {
