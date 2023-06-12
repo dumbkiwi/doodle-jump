@@ -22,12 +22,11 @@ export class ScrollView extends GameObject {
 
         super({
             startActive: config.startActive,
-            children: config.children
-                ? [...config.children, scrollView, triggerCollider]
-                : [scrollView, triggerCollider],
-            components: config.components,
+            children: [...(config.children ?? []), scrollView],
+            components: [...(config.components ?? [triggerCollider])],
         })
 
+        this.viewGameObject = scrollView
         this.smoothing = config.smoothing
         this.playerCollider = config.playerCollider
         this.viewportSize = config.viewportSize

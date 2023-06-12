@@ -63,9 +63,8 @@ export class PlatformSpawner extends GameObject {
         super({
             startActive: config.startActive,
             parent: config.parent,
-            children: config.children
-                ? [...config.children, spawnCollider, despawnCollider]
-                : [spawnCollider, despawnCollider],
+            children: [...(config.children ?? [])],
+            components: [...(config.components ?? []), spawnCollider, despawnCollider],
         })
 
         this.spawnCollider = spawnCollider

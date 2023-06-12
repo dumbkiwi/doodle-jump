@@ -6,7 +6,7 @@ import { SpriteRenderer } from '../sprite-renderer/SpriteRenderer'
 
 export class Platform extends GameObject {
     constructor(config: PlatformConfig) {
-        const platformChildren = [
+        const platformComponents = [
             new SpriteRenderer(config.spriteRendererConfig),
             new RectangleCollider({
                 tag: 'Platform',
@@ -38,10 +38,8 @@ export class Platform extends GameObject {
         super({
             startActive: config.startActive,
             parent: config.parent,
-            children: [
-                config.children ? [...config.children, ...platformChildren] : platformChildren,
-            ],
-            components: config.components,
+            children: [...(config.children ?? [])],
+            components: [...(config.components ?? []), ...platformComponents],
         })
 
         // set transform position to config

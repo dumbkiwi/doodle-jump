@@ -22,11 +22,11 @@ export class Player extends GameObject {
             },
             size: { x: config.size.x, y: config.size.y },
         })
-        const playerChildren = [collider]
         super({
             startActive: config.startActive,
             parent: config.parent,
-            children: [config.children ? [...config.children, ...playerChildren] : playerChildren],
+            children: [...(config.children ?? [])],
+            components: [collider],
         })
 
         this.speed = config.speed

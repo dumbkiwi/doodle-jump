@@ -20,6 +20,8 @@ export class GameObject implements IRuntimeObject {
 
         this.isActive = config.startActive ?? true
         this.parent = config.parent
+        this.children = []
+        this.components = []
 
         this.transform = this.createTransform()
 
