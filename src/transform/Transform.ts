@@ -143,7 +143,7 @@ export class Transform extends GameComponent {
             return this.localPosition
         }
 
-        const parentTransform = parent.getTranform()
+        const parentTransform = parent.getTransform()
 
         if (parentTransform === undefined) {
             console.warn('Tried to get world position of game object with undefined transform')
@@ -159,7 +159,7 @@ export class Transform extends GameComponent {
             return this.localPosition
         }
 
-        const parentTransform = this.gameObject.getParent()?.getTranform()
+        const parentTransform = this.gameObject.getParent()?.getTransform()
 
         if (parentTransform === undefined) {
             console.warn('Tried to get local position of game object with undefined transform')

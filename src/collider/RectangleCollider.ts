@@ -144,15 +144,15 @@ export class RectangleCollider extends Collider {
         this._eventManager = new EventManager<ColliderEvent, Collider>()
 
         if (config.onCollisionEnter) {
-            this._callbacks["collisionEnter"].push(config.onCollisionEnter)
+            this._callbacks['collisionEnter'].push(config.onCollisionEnter)
         }
-        
+
         if (config.onCollisionExit) {
-            this._callbacks["collisionExit"].push(config.onCollisionExit)
+            this._callbacks['collisionExit'].push(config.onCollisionExit)
         }
 
         if (config.onCollisionStay) {
-            this._callbacks["collisionStay"].push(config.onCollisionStay)
+            this._callbacks['collisionStay'].push(config.onCollisionStay)
         }
 
         // binds so that the methods can access this._callbacks
@@ -214,7 +214,7 @@ export class RectangleCollider extends Collider {
         super.init(gameObject)
 
         // set world position
-        const transform = gameObject.getTranform()
+        const transform = gameObject.getTransform()
         const worldPosition = transform.toWorldSpace(this._localPosition)
         this._worldPosition = worldPosition
 
@@ -242,7 +242,7 @@ export class RectangleCollider extends Collider {
 
         // update current position
         // TODO: this should be done in the Rigidbody component
-        const transform = this.gameObject.getTranform()
+        const transform = this.gameObject.getTransform()
         // debugger
         this._worldPosition = transform.toWorldSpace(this._localPosition)
 

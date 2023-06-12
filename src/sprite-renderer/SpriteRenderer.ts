@@ -47,7 +47,7 @@ export class SpriteRenderer extends GameComponent {
     }
 
     private drawImage(gameObject: GameObject, context: CanvasRenderingContext2D): void {
-        const transform = gameObject.getTranform()
+        const transform = gameObject.getTransform()
 
         if (!this.image) {
             console.trace()
@@ -65,7 +65,7 @@ export class SpriteRenderer extends GameComponent {
     }
 
     private drawRectangle(gameObject: GameObject, context: CanvasRenderingContext2D): void {
-        const transform = gameObject.getTranform()
+        const transform = gameObject.getTransform()
 
         context.fillStyle = this.baseColor
         context.fillRect(

@@ -33,15 +33,24 @@ export class PlatformSpawner extends GameObject {
     constructor(config: PlatformSpawnerConfig) {
         const spawnCollider = new RectangleCollider({
             tag: 'PlatformSpawner',
-            position: { x: config.spawnArea.position.x, y: config.spawnArea.position.y - config.minimumPlatformDistance },
+            position: {
+                x: config.spawnArea.position.x,
+                y: config.spawnArea.position.y - config.minimumPlatformDistance,
+            },
             size: { x: config.spawnArea.size.x, y: config.spawnArea.size.y },
         })
-        
+
         // to aid in spawn area platform distancing
         const bufferCollider = new RectangleCollider({
             tag: 'PlatformSpawner',
-            position: { x: config.spawnArea.position.x, y: config.spawnArea.position.y - config.minimumPlatformDistance },
-            size: { x: config.spawnArea.size.x, y: config.spawnArea.size.y + config.minimumPlatformDistance },
+            position: {
+                x: config.spawnArea.position.x,
+                y: config.spawnArea.position.y - config.minimumPlatformDistance,
+            },
+            size: {
+                x: config.spawnArea.size.x,
+                y: config.spawnArea.size.y + config.minimumPlatformDistance,
+            },
         })
 
         const despawnCollider = new RectangleCollider({
@@ -50,7 +59,6 @@ export class PlatformSpawner extends GameObject {
             size: { x: config.despawnArea.size.x, y: config.despawnArea.size.y },
         })
 
-        
         const debugs = [
             // debug buffer collider by creating a gameobject with a sprite rendere to have the same size and position as the collider
             new GameObject({
@@ -62,11 +70,11 @@ export class PlatformSpawner extends GameObject {
                         },
                     }),
                     new SpriteRenderer({
-                            baseColor: 'green',
-                            size: {
-                                x: config.spawnArea.size.x,
-                                y: config.spawnArea.size.y + config.minimumPlatformDistance,
-                            },
+                        baseColor: 'green',
+                        size: {
+                            x: config.spawnArea.size.x,
+                            y: config.spawnArea.size.y + config.minimumPlatformDistance,
+                        },
                     }),
                 ],
                 parent: config.parent,
@@ -82,11 +90,11 @@ export class PlatformSpawner extends GameObject {
                         },
                     }),
                     new SpriteRenderer({
-                            baseColor: 'red',
-                            size: {
-                                x: config.spawnArea.size.x,
-                                y: config.spawnArea.size.y,
-                            },
+                        baseColor: 'red',
+                        size: {
+                            x: config.spawnArea.size.x,
+                            y: config.spawnArea.size.y,
+                        },
                     }),
                 ],
                 parent: config.parent,
@@ -106,11 +114,11 @@ export class PlatformSpawner extends GameObject {
                         },
                     }),
                     new SpriteRenderer({
-                            baseColor: 'blue',
-                            size: {
-                                x: config.despawnArea.size.x,
-                                y: config.despawnArea.size.y,
-                            },
+                        baseColor: 'blue',
+                        size: {
+                            x: config.despawnArea.size.x,
+                            y: config.despawnArea.size.y,
+                        },
                     }),
                 ],
                 parent: config.parent,
@@ -121,10 +129,7 @@ export class PlatformSpawner extends GameObject {
         bufferCollider.on('collisionExit', (other) => {
             // if it is a platform and it was created by this spawner
             const gameObject = other.getGameObject()
-            if (
-                other.tag === 'Platform' &&
-                gameObject instanceof Platform
-            ) {
+            if (other.tag === 'Platform' && gameObject instanceof Platform) {
                 // if a platform exits, spawn a new one
                 this.trySpawnPlatform()
             }
@@ -133,10 +138,7 @@ export class PlatformSpawner extends GameObject {
         despawnCollider.on('collisionEnter', (other) => {
             // if it is a platform and it was created by this spawner
             const gameObject = other.getGameObject()
-            if (
-                other.tag === 'Platform' &&
-                gameObject instanceof Platform
-            ) {
+            if (other.tag === 'Platform' && gameObject instanceof Platform) {
                 // if a platform enters, despawn it
                 this.recyclePlatform(gameObject)
             }
@@ -146,7 +148,12 @@ export class PlatformSpawner extends GameObject {
             startActive: config.startActive,
             parent: config.parent,
             children: [...(config.children ?? []), ...debugs],
-            components: [...(config.components ?? []), spawnCollider, despawnCollider, bufferCollider],
+            components: [
+                ...(config.components ?? []),
+                spawnCollider,
+                despawnCollider,
+                bufferCollider,
+            ],
         })
 
         this.minimumPlatformDistance = config.minimumPlatformDistance
@@ -196,8 +203,8 @@ export class PlatformSpawner extends GameObject {
         }
 
         // calculate local position in the spawn parent object
-        spawnPosition.x -= this.spawnParentObject.getTranform().worldPosition.x
-        spawnPosition.y -= this.spawnParentObject.getTranform().worldPosition.y
+        spawnPosition.x -= this.spawnParentObject.getTransform().worldPosition.x
+        spawnPosition.y -= this.spawnParentObject.getTransform().worldPosition.y
 
         // get platform from the pool
         let platform = this.pool.pop()
@@ -208,7 +215,7 @@ export class PlatformSpawner extends GameObject {
                 position: spawnPosition,
             })
         } else {
-            platform.getTranform().localPosition = spawnPosition
+            platform.getTransform().localPosition = spawnPosition
         }
 
         //   init the platform

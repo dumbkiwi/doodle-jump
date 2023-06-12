@@ -29,7 +29,7 @@ export class ScrollView extends GameObject {
         })
 
         this.viewGameObject = scrollView
-        this.viewTransform = scrollView.getTranform()
+        this.viewTransform = scrollView.getTransform()
         this.smoothing = config.smoothing
         this.playerCollider = config.playerCollider
         this.viewportSize = config.viewportSize
