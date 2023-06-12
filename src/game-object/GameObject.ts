@@ -1,5 +1,5 @@
 import { Collider } from '../collider/Collider'
-import { GameComponent } from '../game-component/GameComponent'
+import { GameComponent, GameComponent } from '../game-component/GameComponent'
 import { Game } from '../game/Game'
 import { IRuntimeObject } from '../runtime-object/IRuntimeObject'
 import { Transform } from '../transform/Transform'
@@ -50,6 +50,12 @@ export class GameObject implements IRuntimeObject {
 
         this.game = game
 
+        // init all components
+        this.components.forEach((component) => component.init(this))
+
+        // init all children
+        this.children.forEach((child) => child.init(game))
+
         this.game.events.on('start', this.start)
         this.game.events.on('update', this.update)
     }
@@ -60,8 +66,6 @@ export class GameObject implements IRuntimeObject {
             return
         }
 
-        this.components.forEach((component) => component.start())
-
         this.children.forEach((child) => child.start())
         this.onStart?.()
     }
@@ -71,8 +75,6 @@ export class GameObject implements IRuntimeObject {
         if (!this.isActive) {
             return
         }
-
-        this.components.forEach((component) => component.update(delta))
 
         this.children.forEach((child) => child.update(delta))
 
@@ -116,10 +118,12 @@ export class GameObject implements IRuntimeObject {
     }
     //// components
     public getComponent<T extends GameComponent>(type: GameComponentType): T | undefined {
-        return this.components.find<T>((component): component is T => component.type === type)
+        return this.components.find<T>((component): component is T => component.getType() === type)
     }
     public getComponents<T extends GameComponent>(type: GameComponentType): T[] {
-        return this.components.filter<T>((component): component is T => component.type === type)
+        return this.components.filter<T>(
+            (component): component is T => component.getType() === type
+        )
     }
     public getComponentsInChildren<T extends GameComponent>(type: GameComponentType): T[] {
         return this.children.reduce<T[]>((components, child) => {
@@ -333,7 +337,8 @@ export class GameObjectOld {
     }
 
     public getColliders(): Collider[] {
-        return this.getComponents('Collider') as Collider[]
+        // return this.getComponents('Collider') as Collider[]
+        return []
     }
 
     public addGameObject(gameObject: GameObjectOld) {

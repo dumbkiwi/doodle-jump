@@ -16,10 +16,11 @@ export class Player extends GameObject {
     constructor(config: PlayerConfig) {
         const collider = new RectangleCollider({
             tag: 'Player',
-            x: 0, // offset from this transform
-            y: 0, // offset from this transform
-            width: config.size.x,
-            height: config.size.y,
+            position: {
+                x: 0,
+                y: 0,
+            },
+            size: { x: config.size.x, y: config.size.y },
         })
         const playerChildren = [collider]
         super({

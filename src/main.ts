@@ -13,7 +13,6 @@ import { PlatformSpawner } from './gameplay/PlatformSpawner'
 import { Transform } from './transform/Transform'
 import { ScoreCounter } from './score-counter/ScoreCounter'
 
-
 const scrollViewGameObject = new ScrollView({
     smoothing: 0.07,
     playerCollider: player.getComponent('Collider') as RectangleCollider,
@@ -59,26 +58,22 @@ const platformTemplate: PlatformConfig = {
 // helper platforms
 const defaultPlatform = new Platform({
     ...platformTemplate,
-    position: {x: canvasSize.x / 2 - 50,
-    y: canvasSize.y / 2 + 200,}
+    position: { x: canvasSize.x / 2 - 50, y: canvasSize.y / 2 + 200 },
 })
 
 const defaultPlatform2 = new Platform({
     ...platformTemplate,
-    position: {x: canvasSize.x / 2 - 150,
-    y: canvasSize.y / 2,}
+    position: { x: canvasSize.x / 2 - 150, y: canvasSize.y / 2 },
 })
 
 const defaultPlatform3 = new Platform({
     ...platformTemplate,
-    position: {x: canvasSize.x / 2 + 50,
-    y: canvasSize.y / 2 - 200,}
+    position: { x: canvasSize.x / 2 + 50, y: canvasSize.y / 2 - 200 },
 })
 
 const defaultPlatform4 = new Platform({
     ...platformTemplate,
-    position: {x: canvasSize.x / 2 - 100,
-    y: canvasSize.y / 2 - 400,}
+    position: { x: canvasSize.x / 2 - 100, y: canvasSize.y / 2 - 400 },
 })
 
 // get scroll view
