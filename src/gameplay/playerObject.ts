@@ -22,8 +22,8 @@ const playerSpriteRenderer = new SpriteRenderer({
 // player
 const player = new Player({
     size: {
-        x: 1,
-        y: 1,
+        x: 50,
+        y: 50,
     },
     speed: 80,
     gravity: 2,
