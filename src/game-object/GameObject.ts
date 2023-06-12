@@ -32,6 +32,10 @@ export class GameObject implements IRuntimeObject {
         // add components
         const components = [...(config.components ?? []), this.transform]
         components.forEach((component) => this.addComponent(component))
+
+        // binds
+        this.start = this.start.bind(this)
+        this.update = this.update.bind(this)
     }
 
     protected createTransform(): Transform {

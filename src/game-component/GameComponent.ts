@@ -12,6 +12,10 @@ export abstract class GameComponent implements IRuntimeObject {
     constructor() {
         this.isDestroyed = false
         this.isActive = true
+
+        // binds
+        this.start = this.start.bind(this)
+        this.update = this.update.bind(this)
     }
 
     public abstract getType(): GameComponentType
