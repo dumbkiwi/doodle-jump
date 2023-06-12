@@ -29,10 +29,8 @@
         "semi": false,
         "singleQuote": true,
         "bracketSpacing": true,
-        "jsxBracketSameLine": false,
         "arrowParens": "always",
-        "endOfLine": "lf",
-        "proseWrap": "preserve"
+        "endOfLine": "lf"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^5.30.6",
