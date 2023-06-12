@@ -58,12 +58,3 @@ export abstract class GameComponent implements IRuntimeObject {
         return this.isActive
     }
 }
-export abstract class GameComponentOld {
-    public abstract get type(): GameComponentType
-    public abstract get gameObject(): GameObject | undefined
-    public abstract set gameObject(value: GameObject | undefined)
-    public abstract init(gameObject: GameObject): void
-    public abstract start(): void
-    public abstract update(delta: number): void
-    public abstract destroy(): void
-}

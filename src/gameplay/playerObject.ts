@@ -6,10 +6,8 @@ import { SpriteRenderer } from '../sprite-renderer/SpriteRenderer'
 // player collider
 const playerCollider = new RectangleCollider({
     tag: 'Player',
-    position: {x: 0,
-    y: 0},
-    size: {x: 50,
-    y: 50}
+    position: { x: 0, y: 0 },
+    size: { x: 50, y: 50 },
 })
 
 // player sprite
