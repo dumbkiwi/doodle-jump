@@ -142,6 +142,9 @@ export class GameObject implements IRuntimeObject {
             (component): component is T => component.getType() === type
         )
     }
+    public getAllComponents(): GameComponent[] {
+        return this.components
+    }
     public getComponentsInChildren<T extends GameComponent>(type: GameComponentType): T[] {
         return this.children.reduce<T[]>((components, child) => {
             return [...components, ...child.getComponentsInChildren<T>(type)]
