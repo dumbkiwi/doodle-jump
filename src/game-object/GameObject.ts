@@ -3,6 +3,42 @@ import { Game } from '../game/Game'
 import { IRuntimeObject } from '../runtime-object/IRuntimeObject'
 import { Transform } from '../transform/Transform'
 
+interface IGameObject extends IRuntimeObject {
+    // fields TODO: move to decorator
+    isActive: boolean
+    isDestroyed: boolean
+    game: Game | undefined
+    parent: GameObject | undefined
+    children: GameObject[]
+    components: GameComponent[]
+    transform: Transform
+    onStart: (() => void) | undefined
+    onUpdate: ((delta: number) => void) | undefined
+    onDestroy: (() => void) | undefined
+
+    // methods
+    //// runtime 
+    init(game: Game): void
+    destroy(): void
+
+    //// utils
+    getTransform(): Transform
+    getGame(): Game | undefined
+
+    //// components
+    getComponent<T extends GameComponent>(type: GameComponentType): T | undefined
+    getComponents<T extends GameComponent>(type: GameComponentType): T[]
+    getAllComponents(): GameComponent[]
+    getComponentsInChildren<T extends GameComponent>(type: GameComponentType): T[]
+    addComponent(component: GameComponent): GameComponent
+    removeComponent(component: GameComponent): GameComponent
+    addChildren(gameObject: GameObject): GameObject
+    removeChildren(gameObject: GameObject): GameObject
+    getChildren(): GameObject[]
+    getParent(): GameObject | undefined
+    setParent(parent: GameObject | undefined): void
+}
+
 export class GameObject implements IRuntimeObject {
     protected isActive: boolean
     protected isDestroyed: boolean
@@ -185,5 +221,84 @@ export class GameObject implements IRuntimeObject {
     }
     public setParent(parent: GameObject | undefined): void {
         this.parent = parent
+    }
+}
+
+export class GameObjectDecorator implements IGameObject {
+    protected wrappee: IGameObject
+
+    // fields
+    public isActive: boolean
+    public isDestroyed: boolean
+    public game: Game | undefined
+    public parent: GameObject | undefined
+    public children: GameObject[]
+    public components: GameComponent[]
+    public transform: Transform
+    public onStart: (() => void) | undefined
+    public onUpdate: ((delta: number) => void) | undefined
+    public onDestroy: (() => void) | undefined
+    
+    constructor(wrappee: IGameObject) {
+        this.wrappee = wrappee
+    }
+
+    // runtime
+    init(game: Game): void {
+        this.wrappee.init(game)
+    }
+
+    destroy(): void {
+        this.wrappee.destroy()
+    }
+
+    // utils
+    /// runtime
+    setActive(active: boolean): void {
+        this.wrappee.setActive(active)
+    }
+    getActive(): boolean {
+        return this.wrappee.getActive()
+    }
+    getTransform(): Transform {
+        return this.wrappee.getTransform()
+    }
+    getGame(): Game | undefined {
+        return this.wrappee.getGame()
+    }
+    //// components
+    getComponent<T extends GameComponent>(type: GameComponentType): T | undefined {
+        return this.wrappee.getComponent<T>(type)
+    }
+    getComponents<T extends GameComponent>(type: GameComponentType): T[] {
+        return this.wrappee.getComponents<T>(type)
+    }
+    getAllComponents(): GameComponent[] {
+        return this.wrappee.getAllComponents()
+    }
+    getComponentsInChildren<T extends GameComponent>(type: GameComponentType): T[] {
+        return this.wrappee.getComponentsInChildren<T>(type)
+    }
+    addComponent(component: GameComponent): GameComponent {
+        return this.wrappee.addComponent(component)
+    }
+    removeComponent(component: GameComponent): GameComponent {
+        return this.wrappee.removeComponent(component)
+    }
+    //// game objects
+    addChildren(gameObject: GameObject): GameObject {
+        return this.wrappee.addChildren(gameObject)
+    }
+    removeChildren(gameObject: GameObject): GameObject {
+        return this.wrappee.removeChildren(gameObject)
+    }
+    getChildren(): GameObject[] {
+        return this.wrappee.getChildren()
+    }
+    getParent(): GameObject | undefined {
+        return this.wrappee.getParent()
+    }
+    setParent(parent: GameObject | undefined): void {
+        this.wrappee.setParent(parent)
     }
 }
