@@ -121,6 +121,11 @@ export class GameObject implements IRuntimeObject {
     public getComponents<T extends GameComponent>(type: GameComponentType): T[] {
         return this.components.filter<T>((component): component is T => component.type === type)
     }
+    public getComponentsInChildren<T extends GameComponent>(type: GameComponentType): T[] {
+        return this.children.reduce<T[]>((components, child) => {
+            return [...components, ...child.getComponentsInChildren<T>(type)]
+        }, this.getComponents<T>(type))
+    }
     public addComponent(component: GameComponent): GameComponent {
         this.components.push(component)
         return component
