@@ -3,6 +3,8 @@ import { RectangleCollider } from '../collider/RectangleCollider'
 import { GameObject } from '../game-object/GameObject'
 import { Game } from '../game/Game'
 import { Platform } from '../platform/Platform'
+import { SpriteRenderer } from '../sprite-renderer/SpriteRenderer'
+import { Transform } from '../transform/Transform'
 
 export type PlatformSpawnerConfig = Partial<GameObjectConfig> & {
     canvasSize: Vector2D
@@ -14,6 +16,7 @@ export type PlatformSpawnerConfig = Partial<GameObjectConfig> & {
         size: Vector2D
         position: Vector2D
     }
+    minimumPlatformDistance: number
     spawnParentObject: GameObject
     platformTemplate: PlatformConfig
 }
@@ -21,17 +24,24 @@ export type PlatformSpawnerConfig = Partial<GameObjectConfig> & {
 export class PlatformSpawner extends GameObject {
     private spawnParentObject: GameObject
     private spawnCollider: Collider
-    private despawnCollider: Collider
+    private bufferCollider: Collider
     private platformTemplate: PlatformConfig
-    private platformDistanceRange: [number, number]
+    private minimumPlatformDistance: number
     private spawned: Platform[]
     private pool: Platform[]
 
     constructor(config: PlatformSpawnerConfig) {
         const spawnCollider = new RectangleCollider({
             tag: 'PlatformSpawner',
-            position: { x: config.spawnArea.position.x, y: config.spawnArea.position.y },
+            position: { x: config.spawnArea.position.x, y: config.spawnArea.position.y - config.minimumPlatformDistance },
             size: { x: config.spawnArea.size.x, y: config.spawnArea.size.y },
+        })
+        
+        // to aid in spawn area platform distancing
+        const bufferCollider = new RectangleCollider({
+            tag: 'PlatformSpawner',
+            position: { x: config.spawnArea.position.x, y: config.spawnArea.position.y - config.minimumPlatformDistance },
+            size: { x: config.spawnArea.size.x, y: config.spawnArea.size.y + config.minimumPlatformDistance },
         })
 
         const despawnCollider = new RectangleCollider({
@@ -40,9 +50,82 @@ export class PlatformSpawner extends GameObject {
             size: { x: config.despawnArea.size.x, y: config.despawnArea.size.y },
         })
 
-        spawnCollider.on('collisionExit', (other) => {
-            if (other.tag === 'Platform') {
-                // if a platform leaves, spawn a platform
+        
+        const debugs = [
+            // debug buffer collider by creating a gameobject with a sprite rendere to have the same size and position as the collider
+            new GameObject({
+                components: [
+                    new Transform({
+                        position: {
+                            x: config.spawnArea.position.x,
+                            y: config.spawnArea.position.y - config.minimumPlatformDistance,
+                        },
+                    }),
+                    new SpriteRenderer({
+                            baseColor: 'green',
+                            size: {
+                                x: config.spawnArea.size.x,
+                                y: config.spawnArea.size.y + config.minimumPlatformDistance,
+                            },
+                    }),
+                ],
+                parent: config.parent,
+                children: [...(config.children ?? [])],
+            }),
+            // debug spawn collider by creating a gameobject with a sprite rendere to have the same size and position as the collider
+            new GameObject({
+                components: [
+                    new Transform({
+                        position: {
+                            x: config.spawnArea.position.x,
+                            y: config.spawnArea.position.y - config.minimumPlatformDistance,
+                        },
+                    }),
+                    new SpriteRenderer({
+                            baseColor: 'red',
+                            size: {
+                                x: config.spawnArea.size.x,
+                                y: config.spawnArea.size.y,
+                            },
+                    }),
+                ],
+                parent: config.parent,
+                children: [...(config.children ?? [])],
+            }),
+            // debug despawn collider by creating a gameobject with a sprite rendere to have the same size and position as the collider
+            new GameObject({
+                components: [
+                    new Transform({
+                        position: {
+                            x: config.despawnArea.position.x,
+                            y: config.despawnArea.position.y,
+                        },
+                        size: {
+                            x: config.despawnArea.size.x,
+                            y: config.despawnArea.size.y,
+                        },
+                    }),
+                    new SpriteRenderer({
+                            baseColor: 'blue',
+                            size: {
+                                x: config.despawnArea.size.x,
+                                y: config.despawnArea.size.y,
+                            },
+                    }),
+                ],
+                parent: config.parent,
+                children: [...(config.children ?? [])],
+            }),
+        ]
+
+        bufferCollider.on('collisionExit', (other) => {
+            // if it is a platform and it was created by this spawner
+            const gameObject = other.getGameObject()
+            if (
+                other.tag === 'Platform' &&
+                gameObject instanceof Platform
+            ) {
+                // if a platform exits, spawn a new one
                 this.trySpawnPlatform()
             }
         })
@@ -52,8 +135,7 @@ export class PlatformSpawner extends GameObject {
             const gameObject = other.getGameObject()
             if (
                 other.tag === 'Platform' &&
-                gameObject instanceof Platform &&
-                this.spawned.includes(gameObject)
+                gameObject instanceof Platform
             ) {
                 // if a platform enters, despawn it
                 this.recyclePlatform(gameObject)
@@ -63,15 +145,17 @@ export class PlatformSpawner extends GameObject {
         super({
             startActive: config.startActive,
             parent: config.parent,
-            children: [...(config.children ?? [])],
-            components: [...(config.components ?? []), spawnCollider, despawnCollider],
+            children: [...(config.children ?? []), ...debugs],
+            components: [...(config.components ?? []), spawnCollider, despawnCollider, bufferCollider],
         })
 
+        this.minimumPlatformDistance = config.minimumPlatformDistance
+        this.bufferCollider = bufferCollider
         this.spawnCollider = spawnCollider
-        this.despawnCollider = despawnCollider
         this.spawnParentObject = config.spawnParentObject
         this.platformTemplate = config.platformTemplate
         this.spawned = []
+        this.pool = []
     }
 
     protected override onStart = (): void => {
@@ -91,18 +175,18 @@ export class PlatformSpawner extends GameObject {
         }
 
         // if there's no game object,
-        // if there is no platform colling with the spawn collider
+        // if there is no platform colling with the buffer collider
         if (
-            !this.spawnCollider.collidingColliders.some((collider) => collider.tag === 'Platform')
+            !this.bufferCollider.collidingColliders.some((collider) => collider.tag === 'Platform')
         ) {
             this.spawnPlatform(this.game)
         }
     }
 
     private spawnPlatform(game: Game) {
-        // set spawn range to be the same as the collider's range
+        // get a random world position inside the spawn collider
         const spawnRange = {
-            x: [this.spawnCollider.left, this.spawnCollider.right],
+            x: [this.spawnCollider.left, this.spawnCollider.right - this.platformTemplate.size.x],
             y: [this.spawnCollider.top, this.spawnCollider.bottom],
         }
 
@@ -111,18 +195,27 @@ export class PlatformSpawner extends GameObject {
             y: Math.random() * (spawnRange.y[1] - spawnRange.y[0]) + spawnRange.y[0],
         }
 
+        // calculate local position in the spawn parent object
+        spawnPosition.x -= this.spawnParentObject.getTranform().worldPosition.x
+        spawnPosition.y -= this.spawnParentObject.getTranform().worldPosition.y
+
         // get platform from the pool
-        let platform = this.spawned.pop()
+        let platform = this.pool.pop()
 
         if (platform === undefined) {
             platform = new Platform({
                 ...this.platformTemplate,
                 position: spawnPosition,
             })
+        } else {
+            platform.getTranform().localPosition = spawnPosition
         }
 
         //   init the platform
         platform.init(game)
+
+        // set active
+        platform.setActive(true)
 
         // add the platform to the spawned platforms array
         // and add it to the parent object
@@ -150,8 +243,9 @@ export class PlatformSpawner extends GameObject {
     }
 
     private RemovePlatformFromParent(platform: Platform) {
-        if (platform.getParent() !== undefined) {
-            platform.removeChildren(platform)
+        const parent = platform.getParent()
+        if (parent !== undefined) {
+            parent.removeChildren(platform)
         }
     }
 }

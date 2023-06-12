@@ -20,7 +20,8 @@ export class FPSCounter extends Label {
         this.lastTime = performance.now()
     }
 
-    protected onUpdate = (_delta: number) => {
+    protected override onUpdate = (_delta: number) => {
+        this.render(this.getGameObject()?.getGame()?.context as CanvasRenderingContext2D)
         this.frameCount++
         const now = performance.now()
         const elapsed = now - this.lastTime

@@ -49,7 +49,7 @@ export class Transform extends GameComponent {
 
     public static toLocalSpace(point: Vector2D, transform: Transform): Vector2D {
         const { x, y } = point
-        const { x: tx, y: ty } = transform.localPosition
+        const { x: tx, y: ty } = transform.worldPosition
         const { x: sx, y: sy } = transform.localScale
         const { x: ax, y: ay } = transform.anchor
 
@@ -64,7 +64,7 @@ export class Transform extends GameComponent {
 
     public static toWorldSpace(point: Vector2D, transform: Transform): Vector2D {
         const { x, y } = point
-        const { x: tx, y: ty } = transform.localPosition
+        const { x: tx, y: ty } = transform.worldPosition
         const { x: sx, y: sy } = transform.localScale
         const { x: ax, y: ay } = transform.anchor
 
@@ -138,6 +138,23 @@ export class Transform extends GameComponent {
 
     private getWorldPosition(position: Vector2D): Vector2D {
         // if game object is undefined, return position
+        const parent = this.gameObject?.getParent()
+        if (parent === undefined) {
+            return this.localPosition
+        }
+
+        const parentTransform = parent.getTranform()
+
+        if (parentTransform === undefined) {
+            console.warn('Tried to get world position of game object with undefined transform')
+            return this.localPosition
+        }
+
+        return Transform.toWorldSpace(position, parentTransform)
+    }
+
+    private getLocalPosition(position: Vector2D): Vector2D {
+        // if game object is undefined, return position
         if (this.gameObject?.getParent() === undefined) {
             return this.localPosition
         }
@@ -145,13 +162,13 @@ export class Transform extends GameComponent {
         const parentTransform = this.gameObject.getParent()?.getTranform()
 
         if (parentTransform === undefined) {
-            console.warn('Tried to get world position of game object with undefined transform')
+            console.warn('Tried to get local position of game object with undefined transform')
             return this.localPosition
         }
 
-        // get world position by calling parent's getWorldPosition and convert to world space
-        const worldPosition = parentTransform.getWorldPosition(position)
+        // get local position by calling parent's getLocalPosition and convert to local space
+        const localPosition = parentTransform.getLocalPosition(position)
 
-        return Transform.toWorldSpace(worldPosition, this)
+        return Transform.toLocalSpace(localPosition, this)
     }
 }

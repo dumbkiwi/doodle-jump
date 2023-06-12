@@ -1,11 +1,13 @@
 import { RectangleCollider } from '../collider/RectangleCollider'
 import { GameObject } from '../game-object/GameObject'
 import { Game } from '../game/Game'
+import { Transform } from '../transform/Transform'
 
 class View extends GameObject {}
 
 export class ScrollView extends GameObject {
     private viewGameObject: GameObject
+    private viewTransform: Transform
     private smoothing: number
     private playerCollider: RectangleCollider
     private triggerCollider: RectangleCollider
@@ -27,6 +29,7 @@ export class ScrollView extends GameObject {
         })
 
         this.viewGameObject = scrollView
+        this.viewTransform = scrollView.getTranform()
         this.smoothing = config.smoothing
         this.playerCollider = config.playerCollider
         this.viewportSize = config.viewportSize
@@ -54,7 +57,7 @@ export class ScrollView extends GameObject {
         }
 
         // move the platform group downwards to deplete the scroll distance
-        this.transform.localPosition.y += this.scrollDistance * this.smoothing
+        this.viewTransform.localPosition.y += this.scrollDistance * this.smoothing
         this.scrollDistance *= 1 - this.smoothing
     }
 

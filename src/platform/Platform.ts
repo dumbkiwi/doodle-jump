@@ -10,7 +10,10 @@ export class Platform extends GameObject {
             new SpriteRenderer(config.spriteRendererConfig),
             new RectangleCollider({
                 tag: 'Platform',
-                position: config.position,
+                position: {
+                    x: 0,
+                    y: 0,
+                },
                 size: config.size,
                 onCollisionEnter: (other: Collider) => {
                     if (other.tag === 'Player') {

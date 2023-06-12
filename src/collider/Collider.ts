@@ -2,6 +2,7 @@ import { GameComponent } from '../game-component/GameComponent'
 import { Game } from '../game/Game'
 
 export abstract class Collider extends GameComponent {
+    private static readonly activeColliders: Collider[] = []
     private _type: GameComponentType = 'Collider'
     protected _callbacks: {
         [key in ColliderEvent]: ((other: Collider) => void)[]
@@ -11,13 +12,33 @@ export abstract class Collider extends GameComponent {
         return this._type
     }
 
-    public abstract getColliderType(): ColliderType
+    constructor() {
+        super()
+        this._callbacks = {
+            collisionEnter: [],
+            collisionExit: [],
+            collisionStay: [],
+        }
 
-    public static getAllColliders(game: Game): Collider[] {
-        return game.gameObjects
-            .map((gameObject) => gameObject.getComponentsInChildren<Collider>('Collider'))
-            .flat()
+        Collider.registerCollider(this)
     }
+    
+    public static getAllColliders(game: Game): Collider[] {
+        return Collider.activeColliders.filter((collider) => collider.getGameObject()?.getGame() === game)
+    }
+
+    protected static registerCollider(collider: Collider) {
+        Collider.activeColliders.push(collider)
+    }
+
+    protected static unregisterCollider(collider: Collider) {
+        const index = Collider.activeColliders.indexOf(collider)
+        if (index > -1) {
+            Collider.activeColliders.splice(index, 1)
+        }
+    }
+
+    public abstract getColliderType(): ColliderType
 
     public abstract get collidingColliders(): Collider[]
 
@@ -62,6 +83,15 @@ export abstract class Collider extends GameComponent {
 
     public abstract set halfHeight(value: number)
     public abstract get halfHeight(): number
+    
+    public override setActive(value: boolean): void {
+        super.setActive(value)
+        if (value) {
+            Collider.registerCollider(this)
+        } else {
+            Collider.unregisterCollider(this)
+        }
+    }
 
     public abstract collide(other: Collider): boolean
     public abstract isPointInCollider(x: number, y: number): boolean

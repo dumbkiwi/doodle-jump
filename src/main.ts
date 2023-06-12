@@ -37,8 +37,8 @@ const platformTemplate: PlatformConfig = {
     spriteRendererConfig: {
         baseColor: 'black',
         size: {
-            x: 100,
-            y: 20,
+            x: 60,
+            y: 15,
         },
     },
     scrollView: scrollViewGameObject,
@@ -90,12 +90,12 @@ const spawner = new PlatformSpawner({
     canvasSize: canvasSize,
     spawnArea: {
         size: {
-            x: canvasSize.x - 100,
-            y: 240,
+            x: canvasSize.x - 40,
+            y: 100, // variability between each random y position
         },
         position: {
-            x: 0,
-            y: -240,
+            x: canvasSize.x / 2 - (canvasSize.x - 40) / 2,
+            y: -100, // must match with the negative of spawnParentObject's y position
         },
     },
     despawnArea: {
@@ -105,9 +105,10 @@ const spawner = new PlatformSpawner({
         },
         position: {
             x: 0,
-            y: canvasSize.y,
+            y: canvasSize.y + 10, // move off screen a bit to hide the disappearing platforms
         },
     },
+    minimumPlatformDistance: 20, // how far apart does each platform have to be to start spawning
     spawnParentObject: view,
     platformTemplate: platformTemplate,
 })
@@ -122,7 +123,7 @@ const scoreCounterObject = new GameObject({
                 y: 40,
             },
         }),
-        new ScoreCounter(scrollViewGameObject, {
+        new ScoreCounter(view, {
             color: 'black',
             size: '24px',
             fontFamily: 'Consolas',
@@ -135,12 +136,12 @@ const scoreCounterObject = new GameObject({
 const doodle = new Game(
     [
         backgroundGameObject,
-        instructionsGameObject,
-        titleGameObject,
-        fpsCounterGameObject,
-        scoreCounterObject,
         scrollViewGameObject,
         spawner,
+        scoreCounterObject,
+        fpsCounterGameObject,
+        titleGameObject,
+        instructionsGameObject,
     ],
     canvasSize
 )

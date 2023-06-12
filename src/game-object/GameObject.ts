@@ -23,7 +23,13 @@ export class GameObject implements IRuntimeObject {
         this.children = []
         this.components = []
 
-        this.transform = this.createTransform()
+        // find transform in config
+        const transform = config.components?.find((component) => component instanceof Transform)
+        if (transform instanceof Transform) {
+            this.transform = transform
+        } else {
+            this.transform = this.createTransform()
+        }
 
         // add children
         const children = [...(config.children ?? [])]
@@ -55,14 +61,14 @@ export class GameObject implements IRuntimeObject {
 
         this.game = game
 
+        this.game.events.on('start', this.start)
+        this.game.events.on('update', this.update)
+
         // init all components
         this.components.forEach((component) => component.init(this))
 
         // init all children
         this.children.forEach((child) => child.init(game))
-
-        this.game.events.on('start', this.start)
-        this.game.events.on('update', this.update)
     }
 
     private start(): void {
@@ -111,6 +117,12 @@ export class GameObject implements IRuntimeObject {
     /// runtime
     public setActive(active: boolean): void {
         this.isActive = active
+        
+        // set components active
+        this.components.forEach((component) => component.setActive(active))
+
+        // set children active
+        this.children.forEach((child) => child.setActive(active))
     }
     public getActive(): boolean {
         return this.isActive

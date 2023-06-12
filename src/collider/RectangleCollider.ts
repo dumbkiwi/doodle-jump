@@ -6,18 +6,18 @@ export class RectangleCollider extends Collider {
     public getColliderType = () => 'RectangleCollider' as ColliderType
 
     public get x(): number {
-        return this._position.x
+        return this._worldPosition.x
     }
     public set x(value: number) {
-        this._position.x = value
+        this._worldPosition.x = value
     }
 
     public get y(): number {
-        return this._position.y
+        return this._worldPosition.y
     }
 
     public set y(value: number) {
-        this._position.y = value
+        this._worldPosition.y = value
     }
 
     public get width(): number {
@@ -37,51 +37,51 @@ export class RectangleCollider extends Collider {
     }
 
     public get right(): number {
-        return this._position.x + this._size.x
+        return this._worldPosition.x + this._size.x
     }
 
     public set right(value: number) {
-        this._position.x = value - this._size.x
+        this._worldPosition.x = value - this._size.x
     }
 
     public get left(): number {
-        return this._position.x
+        return this._worldPosition.x
     }
 
     public set left(value: number) {
-        this._position.x = value
+        this._worldPosition.x = value
     }
 
     public get top(): number {
-        return this._position.y
+        return this._worldPosition.y
     }
 
     public set top(value: number) {
-        this._position.y = value
+        this._worldPosition.y = value
     }
 
     public get bottom(): number {
-        return this._position.y + this._size.y
+        return this._worldPosition.y + this._size.y
     }
 
     public set bottom(value: number) {
-        this._position.y = value - this._size.y
+        this._worldPosition.y = value - this._size.y
     }
 
     public get centerX(): number {
-        return this._position.x + this._size.x / 2
+        return this._worldPosition.x + this._size.x / 2
     }
 
     public set centerX(value: number) {
-        this._position.x = value - this._size.x / 2
+        this._worldPosition.x = value - this._size.x / 2
     }
 
     public get centerY(): number {
-        return this._position.y + this._size.y / 2
+        return this._worldPosition.y + this._size.y / 2
     }
 
     public set centerY(value: number) {
-        this._position.y = value - this._size.y / 2
+        this._worldPosition.y = value - this._size.y / 2
     }
 
     public get halfWidth(): number {
@@ -101,7 +101,8 @@ export class RectangleCollider extends Collider {
     }
 
     // collider
-    private _position: Vector2D
+    private _localPosition: Vector2D
+    private _worldPosition: Vector2D
     private _size: Vector2D
     private _eventManager: EventManager<ColliderEvent, Collider>
     private _velocity: Vector2D
@@ -135,16 +136,23 @@ export class RectangleCollider extends Collider {
 
         this._velocity = { x: 0, y: 0 }
 
-        this._position = config.position
+        this._localPosition = config.position
+        this._worldPosition = { x: 0, y: 0 }
         this._size = config.size
         this._tag = config.tag
 
         this._eventManager = new EventManager<ColliderEvent, Collider>()
 
-        this._callbacks = {
-            collisionEnter: config.onCollisionEnter ? [config.onCollisionEnter] : [],
-            collisionExit: config.onCollisionExit ? [config.onCollisionExit] : [],
-            collisionStay: config.onCollisionStay ? [config.onCollisionStay] : [],
+        if (config.onCollisionEnter) {
+            this._callbacks["collisionEnter"].push(config.onCollisionEnter)
+        }
+        
+        if (config.onCollisionExit) {
+            this._callbacks["collisionExit"].push(config.onCollisionExit)
+        }
+
+        if (config.onCollisionStay) {
+            this._callbacks["collisionStay"].push(config.onCollisionStay)
         }
 
         // binds so that the methods can access this._callbacks
@@ -204,6 +212,12 @@ export class RectangleCollider extends Collider {
 
     public override init(gameObject: GameObject): void {
         super.init(gameObject)
+
+        // set world position
+        const transform = gameObject.getTranform()
+        const worldPosition = transform.toWorldSpace(this._localPosition)
+        this._worldPosition = worldPosition
+
         this._eventManager.on('collisionEnter', this.onCollisionEnter)
         this._eventManager.on('collisionExit', this.onCollisionExit)
         this._eventManager.on('collisionStay', this.onCollisionStay)
@@ -229,9 +243,8 @@ export class RectangleCollider extends Collider {
         // update current position
         // TODO: this should be done in the Rigidbody component
         const transform = this.gameObject.getTranform()
-
-        this._position.x = transform.worldPosition.x
-        this._position.y = transform.worldPosition.y
+        // debugger
+        this._worldPosition = transform.toWorldSpace(this._localPosition)
 
         // get all colliders
         const colliders = Collider.getAllColliders(game)
