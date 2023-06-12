@@ -31,7 +31,7 @@ const player = new Player({
 })
 
 // player's transform
-const playerTransform = player.getTranform()
+const playerTransform = player.getTransform()
 
 if (!playerTransform) {
     throw new Error('Player must have a transform')

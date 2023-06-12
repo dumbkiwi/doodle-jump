@@ -117,7 +117,7 @@ export class GameObject implements IRuntimeObject {
     /// runtime
     public setActive(active: boolean): void {
         this.isActive = active
-        
+
         // set components active
         this.components.forEach((component) => component.setActive(active))
 
@@ -127,7 +127,7 @@ export class GameObject implements IRuntimeObject {
     public getActive(): boolean {
         return this.isActive
     }
-    public getTranform(): Transform {
+    public getTransform(): Transform {
         return this.transform
     }
     public getGame(): Game | undefined {

@@ -22,9 +22,11 @@ export abstract class Collider extends GameComponent {
 
         Collider.registerCollider(this)
     }
-    
+
     public static getAllColliders(game: Game): Collider[] {
-        return Collider.activeColliders.filter((collider) => collider.getGameObject()?.getGame() === game)
+        return Collider.activeColliders.filter(
+            (collider) => collider.getGameObject()?.getGame() === game
+        )
     }
 
     protected static registerCollider(collider: Collider) {
@@ -83,7 +85,7 @@ export abstract class Collider extends GameComponent {
 
     public abstract set halfHeight(value: number)
     public abstract get halfHeight(): number
-    
+
     public override setActive(value: boolean): void {
         super.setActive(value)
         if (value) {

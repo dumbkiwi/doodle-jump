@@ -7,7 +7,7 @@ export class ScoreCounter extends Label {
     constructor(scrollViewObject: GameObject, config: LabelConfig) {
         super(config)
 
-        this.scrollViewTransform = scrollViewObject.getTranform()
+        this.scrollViewTransform = scrollViewObject.getTransform()
     }
 
     protected onUpdate = (_delta: number) => {

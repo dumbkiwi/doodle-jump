@@ -30,7 +30,7 @@ export class Label extends GameComponent {
             throw new Error('Label.render: gameObject is undefined')
         }
 
-        const transform = gameObject.getTranform()
+        const transform = gameObject.getTransform()
         context.fillStyle = this.config.color ?? 'black'
         context.font = `${this.config.size ?? '12px'} ${this.config.fontFamily ?? 'Arial'}`
         context.fillText(
