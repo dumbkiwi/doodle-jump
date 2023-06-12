@@ -15,16 +15,16 @@ export class ScrollView extends GameObject {
     constructor(config: ScrollViewConfig) {
         const scrollView = new View({})
         const triggerCollider = new RectangleCollider({
-            width: config.triggerArea.size.x,
-            height: config.triggerArea.size.y,
-            x: config.triggerArea.position.x,
-            y: config.triggerArea.position.y,
+            size: { x: config.triggerArea.size.x, y: config.triggerArea.size.y },
+            position: { x: config.triggerArea.position.x, y: config.triggerArea.position.y },
             tag: 'Ceiling',
         })
 
         super({
             startActive: config.startActive,
-            children: config.children ? [...config.children, scrollView, triggerCollider] : [scrollView, triggerCollider],
+            children: config.children
+                ? [...config.children, scrollView, triggerCollider]
+                : [scrollView, triggerCollider],
             components: config.components,
         })
 
@@ -33,7 +33,6 @@ export class ScrollView extends GameObject {
         this.viewportSize = config.viewportSize
         this.scrollDistance = 0
         this.triggerCollider = triggerCollider
-        
     }
 
     public override init(game: Game) {

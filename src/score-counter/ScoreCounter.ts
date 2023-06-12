@@ -1,19 +1,18 @@
 import { Label } from '../label/Label'
 import { ScrollView } from '../scrollView/ScrollView'
+import { Transform } from '../transform/Transform'
 
 export class ScoreCounter extends Label {
-    private scrollViewObject: ScrollView
+    private scrollViewTransform: Transform
     constructor(scrollViewObject: ScrollView, config: LabelConfig) {
         super(config)
 
-        this.scrollViewObject = scrollViewObject
+        this.scrollViewTransform = scrollViewObject.getTranform()
     }
 
-    public override update(delta: number) {
-        super.update(delta)
-
+    protected onUpdate = (_delta: number) => {
         this.config.text = `Score: ${Math.floor(
-            Math.round(this.scrollViewObject.transform.localPosition.y / 100)
+            Math.round(this.scrollViewTransform.localPosition.y / 100)
         )}`
     }
 }

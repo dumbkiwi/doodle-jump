@@ -7,12 +7,16 @@ export abstract class Collider extends GameComponent {
         [key in ColliderEvent]: ((other: Collider) => void)[]
     }
 
-    public get type(): GameComponentType {
+    public getType(): GameComponentType {
         return this._type
     }
 
+    public abstract getColliderType(): ColliderType
+
     public static getAllColliders(game: Game): Collider[] {
-        return game.gameObjects.map((gameObject) => gameObject.getColliders()).flat()
+        return game.gameObjects
+            .map((gameObject) => gameObject.getComponentsInChildren<Collider>('Collider'))
+            .flat()
     }
 
     public abstract get collidingColliders(): Collider[]

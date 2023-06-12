@@ -9,16 +9,9 @@ export class Transform extends GameComponent {
     public localScale: Vector2D
     public anchor: Vector2D
 
-    private _gameObject: GameObject | undefined
-    private _startFn: (() => void) | undefined
-    private _updateFn: ((delta: number) => void) | undefined
-    private _destroyFn: (() => void) | undefined
+    public getType = (): GameComponentType => 'Transform' as GameComponentType
 
-    public get type(): GameComponentType {
-        return 'Transform' as GameComponentType
-    }
-
-    constructor(config?: TransformConfig) {
+    constructor(config?: Partial<TransformConfig>) {
         super()
 
         // set defaults then override with config
@@ -40,11 +33,11 @@ export class Transform extends GameComponent {
                 x: 0,
                 y: 0,
             },
-            init: undefined,
-            start: undefined,
-            update: undefined,
-            destroy: undefined,
-            ...config, // override defaults with config
+        } as TransformConfig
+
+        if (config) {
+            // shallow merge
+            Object.assign(inferredConfig, config)
         }
 
         this.localPosition = inferredConfig.position
@@ -52,10 +45,6 @@ export class Transform extends GameComponent {
         this.localRotation = inferredConfig.rotation
         this.localScale = inferredConfig.scale
         this.anchor = inferredConfig.anchor
-
-        this._startFn = inferredConfig.start
-        this._updateFn = inferredConfig.update
-        this._destroyFn = inferredConfig.destroy
     }
 
     public static toLocalSpace(point: Vector2D, transform: Transform): Vector2D {
@@ -86,15 +75,6 @@ export class Transform extends GameComponent {
             x: worldX,
             y: worldY,
         }
-    }
-
-    // getters and setters for gameObject
-    public get gameObject(): GameObject | undefined {
-        return this._gameObject
-    }
-
-    public set gameObject(value: GameObject | undefined) {
-        this._gameObject = value
     }
 
     // getters and setters for worldPosition
@@ -148,24 +128,6 @@ export class Transform extends GameComponent {
         this.gameObject = gameObject
     }
 
-    public start(): void {
-        if (this._startFn !== undefined) {
-            this._startFn()
-        }
-    }
-
-    public update(_delta: number): void {
-        if (this._updateFn !== undefined) {
-            this._updateFn(_delta)
-        }
-    }
-
-    public destroy(): void {
-        if (this._destroyFn !== undefined) {
-            this._destroyFn()
-        }
-    }
-
     public toLocalSpace(pointInWorldSpace: Vector2D): Vector2D {
         return Transform.toLocalSpace(pointInWorldSpace, this)
     }
@@ -176,11 +138,11 @@ export class Transform extends GameComponent {
 
     private getWorldPosition(position: Vector2D): Vector2D {
         // if game object is undefined, return position
-        if (this.gameObject?.parent === undefined) {
+        if (this.gameObject?.getParent() === undefined) {
             return this.localPosition
         }
 
-        const parentTransform = this.gameObject.parent.transform
+        const parentTransform = this.gameObject.getParent()?.getTranform()
 
         if (parentTransform === undefined) {
             console.warn('Tried to get world position of game object with undefined transform')

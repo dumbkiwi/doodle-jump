@@ -30,18 +30,14 @@ export class PlatformSpawner extends GameObject {
     constructor(config: PlatformSpawnerConfig) {
         const spawnCollider = new RectangleCollider({
             tag: 'PlatformSpawner',
-            x: config.spawnArea.position.x,
-            y: config.spawnArea.position.y,
-            width: config.spawnArea.size.x,
-            height: config.spawnArea.size.y,
+            position: { x: config.spawnArea.position.x, y: config.spawnArea.position.y },
+            size: { x: config.spawnArea.size.x, y: config.spawnArea.size.y },
         })
 
         const despawnCollider = new RectangleCollider({
             tag: 'PlatformSpawner',
-            x: config.despawnArea.position.x,
-            y: config.despawnArea.position.y,
-            width: config.despawnArea.size.x,
-            height: config.despawnArea.size.y,
+            position: { x: config.despawnArea.position.x, y: config.despawnArea.position.y },
+            size: { x: config.despawnArea.size.x, y: config.despawnArea.size.y },
         })
 
         spawnCollider.on('collisionExit', (other) => {
@@ -53,13 +49,14 @@ export class PlatformSpawner extends GameObject {
 
         despawnCollider.on('collisionEnter', (other) => {
             // if it is a platform and it was created by this spawner
+            const gameObject = other.getGameObject()
             if (
                 other.tag === 'Platform' &&
-                other.gameObject instanceof Platform &&
-                this.spawned.includes(other.gameObject)
+                gameObject instanceof Platform &&
+                this.spawned.includes(gameObject)
             ) {
                 // if a platform enters, despawn it
-                this.recyclePlatform(other.gameObject)
+                this.recyclePlatform(gameObject)
             }
         })
 

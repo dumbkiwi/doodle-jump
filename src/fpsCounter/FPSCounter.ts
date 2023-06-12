@@ -1,4 +1,3 @@
-import { GameObject } from '../game-object/GameObject'
 import { Label } from '../label/Label'
 
 export class FPSCounter extends Label {
@@ -17,12 +16,11 @@ export class FPSCounter extends Label {
         this.frameCount = 0
     }
 
-    public override init(gameObject: GameObject): void {
-        super.init(gameObject)
+    protected onStart = () => {
         this.lastTime = performance.now()
     }
 
-    public override update(delta: number): void {
+    protected onUpdate = (_delta: number) => {
         this.frameCount++
         const now = performance.now()
         const elapsed = now - this.lastTime
@@ -32,7 +30,5 @@ export class FPSCounter extends Label {
             this.frameCount = 0
             this.lastTime = now
         }
-
-        super.update(delta)
     }
 }

@@ -3,106 +3,106 @@ import { GameObject } from '../game-object/GameObject'
 import { Collider } from './Collider'
 
 export class RectangleCollider extends Collider {
+    public getColliderType = () => 'RectangleCollider' as ColliderType
+
     public get x(): number {
-        return this._x
+        return this._position.x
     }
     public set x(value: number) {
-        this._x = value
+        this._position.x = value
     }
 
     public get y(): number {
-        return this._y
+        return this._position.y
     }
 
     public set y(value: number) {
-        this._y = value
+        this._position.y = value
     }
 
     public get width(): number {
-        return this._width
+        return this._size.x
     }
 
     public set width(value: number) {
-        this._width = value
+        this._size.x = value
     }
 
     public get height(): number {
-        return this._height
+        return this._size.y
     }
 
     public set height(value: number) {
-        this._height = value
+        this._size.y = value
     }
 
     public get right(): number {
-        return this._x + this._width
+        return this._position.x + this._size.x
     }
 
     public set right(value: number) {
-        this._x = value - this._width
+        this._position.x = value - this._size.x
     }
 
     public get left(): number {
-        return this._x
+        return this._position.x
     }
 
     public set left(value: number) {
-        this._x = value
+        this._position.x = value
     }
 
     public get top(): number {
-        return this._y
+        return this._position.y
     }
 
     public set top(value: number) {
-        this._y = value
+        this._position.y = value
     }
 
     public get bottom(): number {
-        return this._y + this._height
+        return this._position.y + this._size.y
     }
 
     public set bottom(value: number) {
-        this._y = value - this._height
+        this._position.y = value - this._size.y
     }
 
     public get centerX(): number {
-        return this._x + this._width / 2
+        return this._position.x + this._size.x / 2
     }
 
     public set centerX(value: number) {
-        this._x = value - this._width / 2
+        this._position.x = value - this._size.x / 2
     }
 
     public get centerY(): number {
-        return this._y + this._height / 2
+        return this._position.y + this._size.y / 2
     }
 
     public set centerY(value: number) {
-        this._y = value - this._height / 2
+        this._position.y = value - this._size.y / 2
     }
 
     public get halfWidth(): number {
-        return this._width / 2
+        return this._size.x / 2
     }
 
     public set halfWidth(value: number) {
-        this._width = value * 2
+        this._size.x = value * 2
     }
 
     public get halfHeight(): number {
-        return this._height / 2
+        return this._size.y / 2
     }
 
     public set halfHeight(value: number) {
-        this._height = value * 2
+        this._size.y = value * 2
     }
 
     // collider
-    private _x: number
-    private _y: number
-    private _width: number
-    private _height: number
+    private _position: Vector2D
+    private _size: Vector2D
     private _eventManager: EventManager<ColliderEvent, Collider>
     private _velocity: Vector2D
     private _tag: ColliderTag = 'Default'
@@ -135,10 +135,8 @@ export class RectangleCollider extends Collider {
 
         this._velocity = { x: 0, y: 0 }
 
-        this._x = config.x
-        this._y = config.y
-        this._width = config.width
-        this._height = config.height
+        this._position = config.position
+        this._size = config.size
         this._tag = config.tag
 
         this._eventManager = new EventManager<ColliderEvent, Collider>()
@@ -204,60 +202,48 @@ export class RectangleCollider extends Collider {
         )
     }
 
-    // GameComponent
-    private _gameObject: GameObject | undefined
-
-    public get gameObject(): GameObject | undefined {
-        return this._gameObject
-    }
-
-    public set gameObject(value: GameObject | undefined) {
-        this._gameObject = value
-    }
-
     public override init(gameObject: GameObject): void {
-        this._gameObject = gameObject
+        super.init(gameObject)
         this._eventManager.on('collisionEnter', this.onCollisionEnter)
         this._eventManager.on('collisionExit', this.onCollisionExit)
         this._eventManager.on('collisionStay', this.onCollisionStay)
     }
 
-    public start(): void {
-        // Do nothing
-    }
-
-    public update(_delta: number): void {
+    protected onUpdate = (_delta: number): void => {
         // if there is a gameobject call getColliders on gameobject to get all active colliders in game object
-        if (!this._gameObject || this._gameObject === undefined) {
-            console.error('Collider does not have a gameObject')
+        if (!this.gameObject) {
+            throw new Error('Collider does not have a game object')
+        }
+
+        // if collider is not active, do not check for collisions
+        if (!this.isActive) {
             return
         }
 
-        if (!this._gameObject.game || this._gameObject.game === undefined) {
-            console.error('Collider does not have a game')
-            return
+        const game = this.gameObject.getGame()
+
+        if (game === undefined) {
+            throw new Error('Collider does not have a game')
         }
 
         // update current position
-        const transform = this._gameObject.transform
+        // TODO: this should be done in the Rigidbody component
+        const transform = this.gameObject.getTranform()
 
-        if (!transform || transform === undefined) {
-            return
-        }
-
-        this._x = transform.worldPosition.x
-        this._y = transform.worldPosition.y
+        this._position.x = transform.worldPosition.x
+        this._position.y = transform.worldPosition.y
 
         // get all colliders
-        const colliders = Collider.getAllColliders(this._gameObject.game)
+        const colliders = Collider.getAllColliders(game)
         for (const collider of colliders) {
             // ignore self
             if (collider === this) {
                 continue
             }
 
+            const isColliding = this.collide(collider)
             // check if colliders collide
-            if (this.collide(collider)) {
+            if (isColliding) {
                 // if they collide, check if they are already colliding
                 if (!this._collidingWith.includes(collider)) {
                     // if they are not colliding, add them to collidingWith
@@ -270,12 +256,10 @@ export class RectangleCollider extends Collider {
             }
 
             // if they are not colliding, check if they were colliding
-            if (!this.collide(collider)) {
-                // if they were colliding, remove them from collidingWith
-                if (this._collidingWith.includes(collider)) {
-                    this._collidingWith.splice(this._collidingWith.indexOf(collider), 1)
-                    this._eventManager.emit('collisionExit', collider)
-                }
+            // if they were colliding, remove them from collidingWith
+            if (!isColliding && this._collidingWith.includes(collider)) {
+                this._collidingWith.splice(this._collidingWith.indexOf(collider), 1)
+                this._eventManager.emit('collisionExit', collider)
             }
         }
     }

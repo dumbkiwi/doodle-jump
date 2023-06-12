@@ -1,27 +1,10 @@
 import { GameComponent } from '../game-component/GameComponent'
-import { GameObject } from '../game-object/GameObject'
 
 export class Label extends GameComponent {
     public config: LabelConfig
 
     // extends gameComponent
-    private _type: GameComponentType = 'Label'
-    private _gameObject: GameObject | undefined = undefined
-
-    // extends gameComponent
-    public get type(): GameComponentType {
-        return this._type
-    }
-
-    // extends gameComponent
-    public get gameObject(): GameObject | undefined {
-        return this._gameObject
-    }
-
-    // extends gameComponent
-    public set gameObject(value: GameObject | undefined) {
-        this._gameObject = value
-    }
+    public getType = () => 'Label' as GameComponentType
 
     constructor(config: LabelConfig) {
         super()
@@ -36,44 +19,28 @@ export class Label extends GameComponent {
     }
 
     public render(context: CanvasRenderingContext2D) {
-        if (!this._gameObject) {
-            console.error('Label.render: gameObject is undefined')
-            return
+        const gameObject = this.getGameObject()
+        if (!gameObject) {
+            console.trace()
+            throw new Error('Label.render: gameObject is undefined')
         }
 
-        if (!this._gameObject.transform) {
-            console.error('Label.render: transform is undefined')
-            return
+        if (!gameObject) {
+            console.trace()
+            throw new Error('Label.render: gameObject is undefined')
         }
 
+        const transform = gameObject.getTranform()
         context.fillStyle = this.config.color ?? 'black'
         context.font = `${this.config.size ?? '12px'} ${this.config.fontFamily ?? 'Arial'}`
         context.fillText(
             this.config.text ?? 'Sample Text',
-            this._gameObject.transform.worldPosition.x,
-            this._gameObject.transform.worldPosition.y
+            transform.worldPosition.x,
+            transform.worldPosition.y
         )
     }
 
-    // extends gameComponent
-    public override init(gameObject: GameObject) {
-        this._gameObject = gameObject
-    }
-
-    public override start() {
-        // do nothing
-    }
-
-    public override update(_delta: number) {
-        if (!this._gameObject) {
-            console.error('Label.update: gameObject is undefined')
-            return
-        }
-
-        this.render(this._gameObject.game?.context as CanvasRenderingContext2D)
-    }
-
-    public override destroy() {
-        // do nothing
+    protected onUpdate = (_delta: number) => {
+        this.render(this.getGameObject()?.getGame()?.context as CanvasRenderingContext2D)
     }
 }

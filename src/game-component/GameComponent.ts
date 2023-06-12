@@ -1,7 +1,7 @@
 import { GameObject } from '../game-object/GameObject'
 import { IRuntimeObject } from '../runtime-object/IRuntimeObject'
 
-export abstract class GameComponentNew implements IRuntimeObject {
+export abstract class GameComponent implements IRuntimeObject {
     protected isActive: boolean
     protected isDestroyed: boolean
     protected gameObject: GameObject | undefined
@@ -11,6 +11,7 @@ export abstract class GameComponentNew implements IRuntimeObject {
 
     constructor() {
         this.isDestroyed = false
+        this.isActive = true
     }
 
     public abstract getType(): GameComponentType
@@ -23,7 +24,8 @@ export abstract class GameComponentNew implements IRuntimeObject {
     public init(gameObject: GameObject): void {
         this.gameObject = gameObject
 
-        // TODO: subscribe start, update to game events
+        this.gameObject.getGame()?.events.on('start', this.start.bind(this))
+        this.gameObject.getGame()?.events.on('update', this.update.bind(this))
     }
     private start(): void {
         // if not active, return
@@ -56,7 +58,7 @@ export abstract class GameComponentNew implements IRuntimeObject {
         return this.isActive
     }
 }
-export abstract class GameComponent {
+export abstract class GameComponentOld {
     public abstract get type(): GameComponentType
     public abstract get gameObject(): GameObject | undefined
     public abstract set gameObject(value: GameObject | undefined)

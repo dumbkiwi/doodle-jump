@@ -7,8 +7,7 @@ export class SpriteRenderer extends GameComponent {
     public image: HTMLImageElement | null
 
     // extends gameComponent
-    private _type: GameComponentType = 'SpriteRenderer'
-    private _gameObject: GameObject | undefined = undefined
+    public getType = () => 'SpriteRenderer' as GameComponentType
 
     constructor(config: SpriteRendererConfig) {
         super()
@@ -23,95 +22,57 @@ export class SpriteRenderer extends GameComponent {
         this.drawRectangle = this.drawRectangle.bind(this)
     }
 
-    // extends gameComponent
-    public get type(): GameComponentType {
-        return this._type
-    }
+    private render(gameObject: GameObject | undefined) {
+        if (!gameObject) {
+            console.trace()
+            throw new Error('SpriteRenderer.render: gameObject is undefined')
+        }
 
-    // extends gameComponent
-    public get gameObject(): GameObject | undefined {
-        return this._gameObject
-    }
+        const context = gameObject.getGame()?.context
+        if (!context) {
+            console.trace()
+            throw new Error('SpriteRenderer.render: context is undefined or')
+        }
 
-    // extends gameComponent
-    public set gameObject(value: GameObject | undefined) {
-        this._gameObject = value
-    }
-
-    public render(context: CanvasRenderingContext2D) {
         // draw a rectangle if no image is provided
         if (!this.image) {
-            this.drawRectangle(context)
+            this.drawRectangle(gameObject, context)
         } else {
-            this.drawImage(context)
+            this.drawImage(gameObject, context)
         }
     }
 
-    public override destroy(): void {
-        // do nothing
+    protected onUpdate = (_delta: number): void => {
+        this.render(this.getGameObject())
     }
 
-    public override init(gameObject: GameObject): void {
-        this._gameObject = gameObject
-    }
-
-    public override start(): void {
-        // do nothing
-    }
-
-    public override update(_delta: number): void {
-        if (!this._gameObject) {
-            console.error('SpriteRenderer.update: gameObject is undefined')
-            return
-        }
-
-        this.render(this._gameObject.game?.context as CanvasRenderingContext2D)
-    }
-
-    private drawImage(context: CanvasRenderingContext2D): void {
-        // TODO: refactor conditionals
-        if (!this._gameObject) {
-            console.error('SpriteRenderer.render: gameObject is undefined')
-            return
-        }
-
-        if (!this._gameObject.transform) {
-            console.error('SpriteRenderer.render: gameObject.transform is undefined')
-            return
-        }
+    private drawImage(gameObject: GameObject, context: CanvasRenderingContext2D): void {
+        const transform = gameObject.getTranform()
 
         if (!this.image) {
-            console.error('SpriteRenderer.drawImage: image is undefined')
-            return
+            console.trace()
+            throw new Error('SpriteRenderer.drawImage: image is undefined')
         }
 
         // TODO: await implementation of worldScale
         context.drawImage(
             this.image,
-            this._gameObject.transform.worldPosition.x,
-            this._gameObject.transform.worldPosition.y,
-            this.size.x * this._gameObject.transform.localScale.x,
-            this.size.y * this._gameObject.transform.localScale.y
+            transform.worldPosition.x,
+            transform.worldPosition.y,
+            this.size.x * transform.localScale.x,
+            this.size.y * transform.localScale.y
         )
     }
 
-    private drawRectangle(context: CanvasRenderingContext2D): void {
-        if (!this._gameObject) {
-            console.error('SpriteRenderer.render: gameObject is undefined')
-            return
-        }
-
-        if (!this._gameObject.transform) {
-            console.error('SpriteRenderer.render: gameObject.transform is undefined')
-            return
-        }
+    private drawRectangle(gameObject: GameObject, context: CanvasRenderingContext2D): void {
+        const transform = gameObject.getTranform()
 
         context.fillStyle = this.baseColor
         context.fillRect(
-            this._gameObject.transform.worldPosition.x,
-            this._gameObject.transform.worldPosition.y,
-            this.size.x * this._gameObject.transform.localScale.x,
-            this.size.y * this._gameObject.transform.localScale.y
+            transform.worldPosition.x,
+            transform.worldPosition.y,
+            this.size.x * transform.localScale.x,
+            this.size.y * transform.localScale.y
         )
     }
 }
