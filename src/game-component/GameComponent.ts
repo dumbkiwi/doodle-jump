@@ -1,10 +1,10 @@
-import { GameObject } from '../game-object/GameObject'
+import { IGameObject } from '../game-object/GameObject'
 import { IRuntimeObject } from '../runtime-object/IRuntimeObject'
 
 export abstract class GameComponent implements IRuntimeObject {
     protected isActive: boolean
     protected isDestroyed: boolean
-    protected gameObject: GameObject | undefined
+    protected gameObject: IGameObject | undefined
     protected onStart: (() => void) | undefined
     protected onUpdate: ((delta: number) => void) | undefined
     protected onDestroy: (() => void) | undefined
@@ -19,13 +19,13 @@ export abstract class GameComponent implements IRuntimeObject {
     }
 
     public abstract getType(): GameComponentType
-    public getGameObject(): GameObject | undefined {
+    public getGameObject(): IGameObject | undefined {
         return this.gameObject
     }
-    public setGameObject(value: GameObject | undefined): void {
+    public setGameObject(value: IGameObject | undefined): void {
         this.gameObject = value
     }
-    public init(gameObject: GameObject): void {
+    public init(gameObject: IGameObject): void {
         this.gameObject = gameObject
 
         this.gameObject.getGame()?.events.on('start', this.start.bind(this))

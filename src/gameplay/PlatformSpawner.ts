@@ -1,6 +1,6 @@
 import { Collider } from '../collider/Collider'
 import { RectangleCollider } from '../collider/RectangleCollider'
-import { GameObject } from '../game-object/GameObject'
+import { GameObject, GameObjectDecorator } from '../game-object/GameObject'
 import { Game } from '../game/Game'
 import { Platform } from '../platform/Platform'
 import { SpriteRenderer } from '../sprite-renderer/SpriteRenderer'
@@ -21,12 +21,11 @@ export type PlatformSpawnerConfig = Partial<GameObjectConfig> & {
     platformTemplate: PlatformConfig
 }
 
-export class PlatformSpawner extends GameObject {
+export class PlatformSpawner extends GameObjectDecorator {
     private spawnParentObject: GameObject
     private spawnCollider: Collider
     private bufferCollider: Collider
     private platformTemplate: PlatformConfig
-    private minimumPlatformDistance: number
     private spawned: Platform[]
     private pool: Platform[]
 
@@ -127,9 +126,7 @@ export class PlatformSpawner extends GameObject {
         ]
 
         bufferCollider.on('collisionExit', (other) => {
-            // if it is a platform and it was created by this spawner
-            const gameObject = other.getGameObject()
-            if (other.tag === 'Platform' && gameObject instanceof Platform) {
+            if (other.tag === 'Platform') {
                 // if a platform exits, spawn a new one
                 this.trySpawnPlatform()
             }
@@ -138,13 +135,18 @@ export class PlatformSpawner extends GameObject {
         despawnCollider.on('collisionEnter', (other) => {
             // if it is a platform and it was created by this spawner
             const gameObject = other.getGameObject()
+
+            if (gameObject === undefined) {
+                throw new Error('Game object is not set')
+            }
+
             if (other.tag === 'Platform' && gameObject instanceof Platform) {
                 // if a platform enters, despawn it
                 this.recyclePlatform(gameObject)
             }
         })
 
-        super({
+        const gameObject = new GameObject({
             startActive: config.startActive,
             parent: config.parent,
             children: [...(config.children ?? []), ...debugs],
@@ -156,28 +158,33 @@ export class PlatformSpawner extends GameObject {
             ],
         })
 
-        this.minimumPlatformDistance = config.minimumPlatformDistance
+        super(gameObject)
+
         this.bufferCollider = bufferCollider
         this.spawnCollider = spawnCollider
         this.spawnParentObject = config.spawnParentObject
         this.platformTemplate = config.platformTemplate
         this.spawned = []
         this.pool = []
+
+        gameObject.on('start', this.preparePlatform.bind(this))
     }
 
-    protected override onStart = (): void => {
+    private preparePlatform() {
+        const game = this.getGame()
         // game should be set already
-        if (this.game === undefined) {
+        if (game === undefined) {
             throw new Error('Game is not set')
         }
 
         // spawn initial platforms
-        this.spawnPlatform(this.game)
+        this.spawnPlatform(game)
     }
 
     private trySpawnPlatform() {
+        const game = this.getGame()
         // game should be set already
-        if (this.game === undefined) {
+        if (game === undefined) {
             throw new Error('Game is not set')
         }
 
@@ -186,7 +193,7 @@ export class PlatformSpawner extends GameObject {
         if (
             !this.bufferCollider.collidingColliders.some((collider) => collider.tag === 'Platform')
         ) {
-            this.spawnPlatform(this.game)
+            this.spawnPlatform(game)
         }
     }
 

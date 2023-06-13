@@ -1,5 +1,5 @@
 import { GameComponent } from '../game-component/GameComponent'
-import { GameObject } from '../game-object/GameObject'
+import { IGameObject } from '../game-object/GameObject'
 
 export class SpriteRenderer extends GameComponent {
     public size: Vector2D
@@ -22,7 +22,7 @@ export class SpriteRenderer extends GameComponent {
         this.drawRectangle = this.drawRectangle.bind(this)
     }
 
-    private render(gameObject: GameObject | undefined) {
+    private render(gameObject: IGameObject | undefined) {
         if (!gameObject) {
             console.trace()
             throw new Error('SpriteRenderer.render: gameObject is undefined')
@@ -46,7 +46,7 @@ export class SpriteRenderer extends GameComponent {
         this.render(this.getGameObject())
     }
 
-    private drawImage(gameObject: GameObject, context: CanvasRenderingContext2D): void {
+    private drawImage(gameObject: IGameObject, context: CanvasRenderingContext2D): void {
         const transform = gameObject.getTransform()
 
         if (!this.image) {
@@ -64,7 +64,7 @@ export class SpriteRenderer extends GameComponent {
         )
     }
 
-    private drawRectangle(gameObject: GameObject, context: CanvasRenderingContext2D): void {
+    private drawRectangle(gameObject: IGameObject, context: CanvasRenderingContext2D): void {
         const transform = gameObject.getTransform()
 
         context.fillStyle = this.baseColor

@@ -3,21 +3,24 @@ import { Game } from '../game/Game'
 import { IRuntimeObject } from '../runtime-object/IRuntimeObject'
 import { Transform } from '../transform/Transform'
 
-interface IGameObject extends IRuntimeObject {
+export interface IGameObject extends IRuntimeObject {
     // fields TODO: move to decorator
-    isActive: boolean
-    isDestroyed: boolean
-    game: Game | undefined
-    parent: GameObject | undefined
-    children: GameObject[]
-    components: GameComponent[]
-    transform: Transform
-    onStart: (() => void) | undefined
-    onUpdate: ((delta: number) => void) | undefined
-    onDestroy: (() => void) | undefined
+    // isActive: boolean
+    // isDestroyed: boolean
+    // game: Game | undefined
+    // parent: GameObject | undefined
+    // children: GameObject[]
+    // components: GameComponent[]
+    // transform: Transform
+    // onStart: (() => void) | undefined
+    // onUpdate: ((delta: number) => void) | undefined
+    // onDestroy: (() => void) | undefined
 
     // methods
-    //// runtime 
+    //// runtime
+    on(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void
+    once(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void
+    off(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void
     init(game: Game): void
     destroy(): void
 
@@ -32,24 +35,22 @@ interface IGameObject extends IRuntimeObject {
     getComponentsInChildren<T extends GameComponent>(type: GameComponentType): T[]
     addComponent(component: GameComponent): GameComponent
     removeComponent(component: GameComponent): GameComponent
-    addChildren(gameObject: GameObject): GameObject
-    removeChildren(gameObject: GameObject): GameObject
-    getChildren(): GameObject[]
-    getParent(): GameObject | undefined
-    setParent(parent: GameObject | undefined): void
+    addChildren(gameObject: IGameObject): IGameObject
+    removeChildren(gameObject: IGameObject): IGameObject
+    getChildren(): IGameObject[]
+    getParent(): IGameObject | undefined
+    setParent(parent: IGameObject | undefined): void
 }
 
-export class GameObject implements IRuntimeObject {
-    protected isActive: boolean
-    protected isDestroyed: boolean
-    protected game: Game | undefined
-    protected parent: GameObject | undefined
-    protected children: GameObject[]
-    protected components: GameComponent[]
-    protected transform: Transform
-    protected onStart: (() => void) | undefined
-    protected onUpdate: ((delta: number) => void) | undefined
-    protected onDestroy: (() => void) | undefined
+export class GameObject implements IGameObject {
+    private isActive: boolean
+    private isDestroyed: boolean
+    private game: Game | undefined
+    private parent: IGameObject | undefined
+    private children: IGameObject[]
+    private components: GameComponent[]
+    private transform: Transform
+    private callbacks: Map<GameEvent, ((() => void) | ((delta: number) => void))[]>
 
     constructor(config: Partial<GameObjectConfig>) {
         this.isDestroyed = false
@@ -58,6 +59,7 @@ export class GameObject implements IRuntimeObject {
         this.parent = config.parent
         this.children = []
         this.components = []
+        this.callbacks = new Map()
 
         // find transform in config
         const transform = config.components?.find((component) => component instanceof Transform)
@@ -76,8 +78,8 @@ export class GameObject implements IRuntimeObject {
         components.forEach((component) => this.addComponent(component))
 
         // binds
-        this.start = this.start.bind(this)
-        this.update = this.update.bind(this)
+        // this.start = this.start.bind(this)
+        // this.update = this.update.bind(this)
     }
 
     protected createTransform(): Transform {
@@ -89,6 +91,30 @@ export class GameObject implements IRuntimeObject {
     }
 
     // runtime
+    public on(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
+        const callbacks = this.callbacks.get(event) ?? []
+        this.callbacks.set(event, [...callbacks, callback])
+
+        this.game?.events.on(event, callback)
+    }
+
+    public once(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
+        const callbacks = this.callbacks.get(event) ?? []
+        this.callbacks.set(event, [...callbacks, callback])
+
+        this.game?.events.once(event, callback)
+    }
+
+    public off(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
+        const callbacks = this.callbacks.get(event) ?? []
+        this.callbacks.set(
+            event,
+            callbacks.filter((cb) => cb !== callback)
+        )
+
+        this.game?.events.off(event, callback)
+    }
+
     public init(game: Game): void {
         // if destroyed, throw error
         if (this.isDestroyed) {
@@ -97,8 +123,12 @@ export class GameObject implements IRuntimeObject {
 
         this.game = game
 
-        this.game.events.on('start', this.start)
-        this.game.events.on('update', this.update)
+        // this.game.events.on('start', this.start)
+        // this.game.events.on('update', this.update)
+
+        this.callbacks.forEach((callbacks, event) => {
+            callbacks.forEach((callback) => game.events.on(event, callback))
+        })
 
         // init all components
         this.components.forEach((component) => component.init(this))
@@ -107,26 +137,23 @@ export class GameObject implements IRuntimeObject {
         this.children.forEach((child) => child.init(game))
     }
 
-    private start(): void {
-        // if not active, return
-        if (!this.isActive) {
-            return
-        }
+    // private start(): void {
+    //     // if not active, return
+    //     if (!this.isActive) {
+    //         return
+    //     }
 
-        this.children.forEach((child) => child.start())
-        this.onStart?.()
-    }
+    //     this.children.forEach((child) => child.start())
+    // }
 
-    private update(delta: number): void {
-        // if not active, return
-        if (!this.isActive) {
-            return
-        }
+    // private update(delta: number): void {
+    //     // if not active, return
+    //     if (!this.isActive) {
+    //         return
+    //     }
 
-        this.children.forEach((child) => child.update(delta))
-
-        this.onUpdate?.(delta)
-    }
+    //     this.children.forEach((child) => child.update(delta))
+    // }
 
     public destroy(): void {
         // if destroyed, throw error
@@ -145,8 +172,6 @@ export class GameObject implements IRuntimeObject {
 
         // set destroyed
         this.isDestroyed = true
-
-        this.onDestroy?.()
     }
 
     // utils
@@ -199,12 +224,12 @@ export class GameObject implements IRuntimeObject {
         return this.components.splice(index, 1)[0]
     }
     //// game objects
-    public addChildren(gameObject: GameObject): GameObject {
+    public addChildren(gameObject: IGameObject): IGameObject {
         this.children.push(gameObject)
         gameObject.setParent(this)
         return gameObject
     }
-    public removeChildren(gameObject: GameObject): GameObject {
+    public removeChildren(gameObject: IGameObject): IGameObject {
         gameObject.setParent(undefined)
         const index = this.children.indexOf(gameObject)
         if (index === -1) {
@@ -213,13 +238,13 @@ export class GameObject implements IRuntimeObject {
 
         return this.children.splice(index, 1)[0]
     }
-    public getChildren(): GameObject[] {
+    public getChildren(): IGameObject[] {
         return this.children
     }
-    public getParent(): GameObject | undefined {
+    public getParent(): IGameObject | undefined {
         return this.parent
     }
-    public setParent(parent: GameObject | undefined): void {
+    public setParent(parent: IGameObject | undefined): void {
         this.parent = parent
     }
 }
@@ -227,23 +252,23 @@ export class GameObject implements IRuntimeObject {
 export class GameObjectDecorator implements IGameObject {
     protected wrappee: IGameObject
 
-    // fields
-    public isActive: boolean
-    public isDestroyed: boolean
-    public game: Game | undefined
-    public parent: GameObject | undefined
-    public children: GameObject[]
-    public components: GameComponent[]
-    public transform: Transform
-    public onStart: (() => void) | undefined
-    public onUpdate: ((delta: number) => void) | undefined
-    public onDestroy: (() => void) | undefined
-    
     constructor(wrappee: IGameObject) {
         this.wrappee = wrappee
     }
 
     // runtime
+    on(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
+        this.wrappee.on(event, callback)
+    }
+
+    once(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
+        this.wrappee.once(event, callback)
+    }
+
+    off(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
+        this.wrappee.off(event, callback)
+    }
+
     init(game: Game): void {
         this.wrappee.init(game)
     }
@@ -286,19 +311,19 @@ export class GameObjectDecorator implements IGameObject {
         return this.wrappee.removeComponent(component)
     }
     //// game objects
-    addChildren(gameObject: GameObject): GameObject {
+    addChildren(gameObject: IGameObject): IGameObject {
         return this.wrappee.addChildren(gameObject)
     }
-    removeChildren(gameObject: GameObject): GameObject {
+    removeChildren(gameObject: IGameObject): IGameObject {
         return this.wrappee.removeChildren(gameObject)
     }
-    getChildren(): GameObject[] {
+    getChildren(): IGameObject[] {
         return this.wrappee.getChildren()
     }
-    getParent(): GameObject | undefined {
+    getParent(): IGameObject | undefined {
         return this.wrappee.getParent()
     }
-    setParent(parent: GameObject | undefined): void {
+    setParent(parent: IGameObject | undefined): void {
         this.wrappee.setParent(parent)
     }
 }

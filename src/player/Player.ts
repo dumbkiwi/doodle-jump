@@ -1,9 +1,9 @@
 import { Collider } from '../collider/Collider'
 import { RectangleCollider } from '../collider/RectangleCollider'
-import { GameObject } from '../game-object/GameObject'
+import { GameObject, GameObjectDecorator } from '../game-object/GameObject'
 import { Game } from '../game/Game'
 
-export class Player extends GameObject {
+export class Player extends GameObjectDecorator {
     private control: {
         left: boolean
         right: boolean
@@ -22,12 +22,14 @@ export class Player extends GameObject {
             },
             size: { x: config.size.x, y: config.size.y },
         })
-        super({
+        const gameObject = new GameObject({
             startActive: config.startActive,
             parent: config.parent,
             children: [...(config.children ?? [])],
             components: [collider],
         })
+
+        super(gameObject)
 
         this.speed = config.speed
         this.gravity = config.gravity
@@ -38,6 +40,8 @@ export class Player extends GameObject {
             left: false,
             right: false,
         }
+
+        gameObject.on('update', this.move.bind(this))
     }
 
     public override init(game: Game): void {
@@ -50,7 +54,8 @@ export class Player extends GameObject {
         document.addEventListener('keyup', this.onKeyUp.bind(this))
     }
 
-    protected override onUpdate = (delta: number): void => {
+    private move = (delta: number): void => {
+        const transform = this.getTransform()
         // move player based on control
         let moveDirection = 0
         if (this.control.left) {
@@ -60,12 +65,12 @@ export class Player extends GameObject {
             moveDirection += 1
         }
 
-        this.transform.localPosition.x += (moveDirection * this.speed) / delta
+        transform.localPosition.x += (moveDirection * this.speed) / delta
 
         // with gravity
         this.collider.velocity.y += this.gravity / delta
         this.collider.velocity.y /= this.friction
-        this.transform.localPosition.y += this.collider.velocity.y
+        transform.localPosition.y += this.collider.velocity.y
     }
 
     private onKeyDown(keydown: KeyboardEvent) {

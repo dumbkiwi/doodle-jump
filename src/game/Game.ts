@@ -1,6 +1,6 @@
 import { RequestAnimationFrame } from '../dom/RequestAnimationFrame'
 import { EventManager } from '../event/Event'
-import { GameObject } from '../game-object/GameObject'
+import { IGameObject } from '../game-object/GameObject'
 
 export class Game {
     public canvas: HTMLCanvasElement
@@ -11,17 +11,17 @@ export class Game {
         RuntimeEvent,
         string
     >()
-    private _gameObjects: GameObject[]
+    private _gameObjects: IGameObject[]
     private raf: RequestAnimationFrame
     private lastFrameTime: number
 
     private hasInitialized: boolean
 
-    public get gameObjects(): GameObject[] {
+    public get gameObjects(): IGameObject[] {
         return this._gameObjects
     }
 
-    constructor(gameObjects: GameObject[], viewportSize?: Vector2D) {
+    constructor(gameObjects: IGameObject[], viewportSize?: Vector2D) {
         this.runtimeEventManager.on('error', (error) => {
             console.trace(`Game stopped be cause of a fatal: ${error}. Stack trace:`)
             this.stop()

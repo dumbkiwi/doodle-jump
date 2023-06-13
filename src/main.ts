@@ -49,10 +49,10 @@ const platformTemplate: PlatformConfig = {
     },
     color: 'black',
     size: {
-        x: 100,
+        x: 60,
         y: 20,
     },
-    bounciness: 8,
+    bounciness: 18,
 } as const
 
 // helper platforms

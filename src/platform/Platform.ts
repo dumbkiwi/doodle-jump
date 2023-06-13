@@ -1,11 +1,21 @@
 import { canvasSize } from '../canvasSize'
 import { Collider } from '../collider/Collider'
 import { RectangleCollider } from '../collider/RectangleCollider'
-import { GameObject } from '../game-object/GameObject'
+import { GameObject, GameObjectDecorator } from '../game-object/GameObject'
+import { Game } from '../game/Game'
 import { SpriteRenderer } from '../sprite-renderer/SpriteRenderer'
 
-export class Platform extends GameObject {
+export class Platform extends GameObjectDecorator {
     constructor(config: PlatformConfig) {
+        super(
+            new GameObject({
+                startActive: config.startActive,
+                parent: config.parent,
+                children: [],
+                components: [],
+            })
+        )
+
         const platformComponents = [
             new SpriteRenderer(config.spriteRendererConfig),
             new RectangleCollider({
@@ -20,14 +30,14 @@ export class Platform extends GameObject {
                         // if player is falling down
                         if (other.velocity.y > 0) {
                             // set player position to the top of the platform
-                            other.y = this.transform.worldPosition.y + config.size.y / 2
+                            other.y = this.getTransform().worldPosition.y + config.size.y / 2
 
                             // bounce player by setting its velocity to the opposite of bounciness
                             other.velocity.y = -config.bounciness
 
                             // set scroll distance to be the distance between the platform to the bottom of the canvas
                             config.scrollView?.setScrollDistance(
-                                -this.transform.worldPosition.y +
+                                -this.getTransform().worldPosition.y +
                                     canvasSize.y -
                                     config.size.y -
                                     (config.scrollViewPadding ?? 0)
@@ -38,15 +48,21 @@ export class Platform extends GameObject {
             }),
         ]
 
-        super({
-            startActive: config.startActive,
-            parent: config.parent,
-            children: [...(config.children ?? [])],
-            components: [...(config.components ?? []), ...platformComponents],
+        // add components to game object
+        platformComponents.forEach((component) => {
+            this.addComponent(component)
         })
 
         // set transform position to config
-        this.transform.localPosition.x = config.position.x
-        this.transform.localPosition.y = config.position.y
+        this.getTransform().localPosition.x = config.position.x
+        this.getTransform().localPosition.y = config.position.y
+    }
+
+    public override init(game: Game): void {
+        super.init(game)
+
+        this.getAllComponents().forEach((component) => {
+            component.init(this) // pass this game object to component
+        })
     }
 }

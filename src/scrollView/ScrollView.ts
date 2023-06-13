@@ -1,11 +1,9 @@
 import { RectangleCollider } from '../collider/RectangleCollider'
-import { GameObject } from '../game-object/GameObject'
+import { GameObject, GameObjectDecorator } from '../game-object/GameObject'
 import { Game } from '../game/Game'
 import { Transform } from '../transform/Transform'
 
-class View extends GameObject {}
-
-export class ScrollView extends GameObject {
+export class ScrollView extends GameObjectDecorator {
     private viewGameObject: GameObject
     private viewTransform: Transform
     private smoothing: number
@@ -15,18 +13,20 @@ export class ScrollView extends GameObject {
     private scrollDistance: number
 
     constructor(config: ScrollViewConfig) {
-        const scrollView = new View({})
+        const scrollView = new GameObject({})
         const triggerCollider = new RectangleCollider({
             size: { x: config.triggerArea.size.x, y: config.triggerArea.size.y },
             position: { x: config.triggerArea.position.x, y: config.triggerArea.position.y },
             tag: 'Ceiling',
         })
 
-        super({
+        const gameObject = new GameObject({
             startActive: config.startActive,
             children: [...(config.children ?? []), scrollView],
             components: [...(config.components ?? [triggerCollider])],
         })
+
+        super(gameObject)
 
         this.viewGameObject = scrollView
         this.viewTransform = scrollView.getTransform()
@@ -35,6 +35,8 @@ export class ScrollView extends GameObject {
         this.viewportSize = config.viewportSize
         this.scrollDistance = 0
         this.triggerCollider = triggerCollider
+
+        gameObject.on('update', this.move.bind(this))
     }
 
     public override init(game: Game) {
@@ -51,8 +53,8 @@ export class ScrollView extends GameObject {
         super.init(game)
     }
 
-    protected override onUpdate = (_delta: number) => {
-        if (!this.transform) {
+    private move(_delta: number) {
+        if (!this.viewTransform) {
             return
         }
 
