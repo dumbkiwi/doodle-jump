@@ -11,6 +11,10 @@ module.exports = {
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
+        alias: {
+            '@': path.resolve(__dirname, '../src'),
+            '#': path.resolve(__dirname, '../assets'),
+        }
     },
     module: {
         rules: [
@@ -19,6 +23,11 @@ module.exports = {
                 include: path.join(__dirname, '../src'),
                 loader: 'ts-loader',
             },
+            {
+                // images
+                test: /\.(?:ico|gif|png|jpg|jpeg|webp|svg)$/i,
+                type: 'asset/resource',
+            }
         ],
     },
     optimization: {
@@ -34,7 +43,7 @@ module.exports = {
         },
     },
     plugins: [
-        new HtmlWebpackPlugin({ gameName: 'My Game', template: 'index.html' }),
+        new HtmlWebpackPlugin({ gameName: 'Doodle jump', template: 'index.html' }),
         new CopyWebpackPlugin({
             patterns: [
                 { from: 'assets', to: 'assets' },
