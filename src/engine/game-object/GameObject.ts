@@ -43,14 +43,18 @@ export interface IGameObject extends IRuntimeObject {
 }
 
 export class GameObject implements IGameObject {
+    // state
     private isActive: boolean
     private isDestroyed: boolean
+
+    // relationship
     private game: Game | undefined
     private parent: IGameObject | undefined
     private children: IGameObject[]
     private components: GameComponent[]
+
+    // cached components
     private transform: Transform
-    private callbacks: Map<GameEvent, ((() => void) | ((delta: number) => void))[]>
 
     constructor(config: Partial<GameObjectConfig>) {
         this.isDestroyed = false
@@ -59,30 +63,25 @@ export class GameObject implements IGameObject {
         this.parent = config.parent
         this.children = []
         this.components = []
-        this.callbacks = new Map()
 
         // find transform in config
         const transform = config.components?.find((component) => component instanceof Transform)
         if (transform instanceof Transform) {
             this.transform = transform
         } else {
-            this.transform = this.createTransform()
+            this.transform = this.createDefaultTransform()
         }
 
         // add children
-        const children = [...(config.children ?? [])]
+        const children = config.children ?? []
         children.forEach((child) => this.addChildren(child))
 
         // add components
         const components = [...(config.components ?? []), this.transform]
         components.forEach((component) => this.addComponent(component))
-
-        // binds
-        // this.start = this.start.bind(this)
-        // this.update = this.update.bind(this)
     }
 
-    protected createTransform(): Transform {
+    private createDefaultTransform(): Transform {
         return new Transform({
             position: { x: 0, y: 0 },
             rotation: 0,
@@ -92,26 +91,14 @@ export class GameObject implements IGameObject {
 
     // runtime
     public on(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
-        const callbacks = this.callbacks.get(event) ?? []
-        this.callbacks.set(event, [...callbacks, callback])
-
         this.game?.events.on(event, callback)
     }
 
     public once(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
-        const callbacks = this.callbacks.get(event) ?? []
-        this.callbacks.set(event, [...callbacks, callback])
-
         this.game?.events.once(event, callback)
     }
 
     public off(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
-        const callbacks = this.callbacks.get(event) ?? []
-        this.callbacks.set(
-            event,
-            callbacks.filter((cb) => cb !== callback)
-        )
-
         this.game?.events.off(event, callback)
     }
 
@@ -123,13 +110,6 @@ export class GameObject implements IGameObject {
 
         this.game = game
 
-        // this.game.events.on('start', this.start)
-        // this.game.events.on('update', this.update)
-
-        this.callbacks.forEach((callbacks, event) => {
-            callbacks.forEach((callback) => game.events.on(event, callback))
-        })
-
         // init all components
         this.components.forEach((component) => component.init(this))
 
@@ -137,29 +117,13 @@ export class GameObject implements IGameObject {
         this.children.forEach((child) => child.init(game))
     }
 
-    // private start(): void {
-    //     // if not active, return
-    //     if (!this.isActive) {
-    //         return
-    //     }
-
-    //     this.children.forEach((child) => child.start())
-    // }
-
-    // private update(delta: number): void {
-    //     // if not active, return
-    //     if (!this.isActive) {
-    //         return
-    //     }
-
-    //     this.children.forEach((child) => child.update(delta))
-    // }
-
     public destroy(): void {
         // if destroyed, throw error
         if (this.isDestroyed) {
             throw new Error('Cannot destroy a destroyed game object')
         }
+
+        this.game = undefined
 
         // destroy all children
         this.children.forEach((child) => child.destroy())

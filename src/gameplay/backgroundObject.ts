@@ -5,6 +5,7 @@ import { Transform } from '../engine/transform/Transform'
 import backgroundImage from '#/doodle-jump/bck@2x.png'
 import bottomImage from '#/doodle-jump/bottom-tile@2x.png'
 import { RectangleCollider } from '@/engine/collider/RectangleCollider'
+import { Game } from '@/engine/game/Game'
 
 // background object
 export class BackgroundGameObject extends GameObjectDecorator {
@@ -118,12 +119,6 @@ export class BackgroundGameObject extends GameObjectDecorator {
                 })
             ],
         })
-
-        
-        // add handler to move the background downwards
-        obj.on("update", () => {
-            this.move()
-        })
         
         super(obj)
         
@@ -140,6 +135,13 @@ export class BackgroundGameObject extends GameObjectDecorator {
         this.transform.localPosition.y -= this.collider.velocity.y * this.smoothing
         this.collider.velocity.y *= 1 - this.smoothing
         }
+    }
+
+    public override init(game: Game) {
+        super.init(game)
+        this.on("update", () => {
+            this.move()
+        })
     }
 
     public setGameOver(state: boolean) {

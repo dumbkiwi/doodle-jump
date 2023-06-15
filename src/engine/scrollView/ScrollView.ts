@@ -41,19 +41,19 @@ export class ScrollView extends GameObjectDecorator {
                 this.addScrollDistance(-other.velocity.y)
             }
         })
-
-        gameObject.on('update', this.move.bind(this))
     }
 
     public override init(game: Game) {
         // init scroll distance
         this.scrollDistance = 0
+        
+        this.on('update', () => {this.move()})
 
         // added last because there was changes to the list of components
         super.init(game)
     }
 
-    private move(_delta: number) {
+    private move() {
         if (!this.viewTransform) {
             return
         }

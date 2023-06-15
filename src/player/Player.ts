@@ -63,12 +63,12 @@ export class Player extends GameObjectDecorator {
             left: false,
             right: false,
         }
-
-        gameObject.on('update', this.move.bind(this))
     }
 
     public override init(game: Game): void {
         super.init(game)
+
+        this.on('update', this.move.bind(this))
 
         // subscribe velocity control to keydown event
         document.addEventListener('keydown', this.onKeyDown.bind(this))

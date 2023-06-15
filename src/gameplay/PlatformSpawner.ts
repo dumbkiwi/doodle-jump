@@ -165,8 +165,12 @@ export class PlatformSpawner extends GameObjectDecorator {
         this.platformTemplate = config.platformTemplate
         this.spawned = []
         this.pool = []
+    }
 
-        gameObject.on('start', this.preparePlatform.bind(this))
+    public override init(game: Game) {
+        super.init(game)
+
+    this.on('start', () => {this.preparePlatform()})
     }
 
     private preparePlatform() {
