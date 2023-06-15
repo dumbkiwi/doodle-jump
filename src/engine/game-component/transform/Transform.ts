@@ -1,7 +1,7 @@
-import { GameComponent } from '../GameComponent'
+import { GameComponent, GameComponentDecorator } from '../GameComponent'
 import { GameObject } from '../../game-object/GameObject'
 
-export class Transform extends GameComponent {
+export class Transform extends GameComponentDecorator {
     // TODO: implement world variants
     public localPosition: Vector2D
     public localRotation: number
@@ -10,7 +10,8 @@ export class Transform extends GameComponent {
     public getType = (): GameComponentType => 'Transform' as GameComponentType
 
     constructor(config?: Partial<TransformConfig>) {
-        super()
+        const base = new GameComponent()
+        super(base)
 
         // set defaults then override with config
         const inferredConfig = {
@@ -44,7 +45,7 @@ export class Transform extends GameComponent {
     }
 
     public static toLocalSpace(point: Vector2D, transform: Transform): Vector2D {
-        const parentTransform = transform.gameObject?.getParent()?.getTransform()
+        const parentTransform = transform.getGameObject()?.getParent()?.getTransform()
 
         const { x, y } = point
         const { x: tx, y: ty } = parentTransform
@@ -62,7 +63,7 @@ export class Transform extends GameComponent {
     }
 
     public static toWorldSpace(point: Vector2D, transform: Transform): Vector2D {
-        const parentTransform = transform.gameObject?.getParent()?.getTransform()
+        const parentTransform = transform.getGameObject()?.getParent()?.getTransform()
 
         const { x, y } = point
         const { x: tx, y: ty } = parentTransform
@@ -81,7 +82,7 @@ export class Transform extends GameComponent {
 
     // getters and setters for worldPosition
     public get worldPosition(): Vector2D {
-        const parentTransform = this.gameObject?.getParent()?.getTransform()
+        const parentTransform = this.getGameObject()?.getParent()?.getTransform()
         return parentTransform ? Transform.toWorldSpace(this.localPosition, parentTransform) : this.localPosition
     }
 
@@ -104,6 +105,6 @@ export class Transform extends GameComponent {
     }
 
     public init(gameObject: GameObject): void {
-        this.gameObject = gameObject
+        super.init(gameObject)
     }
 }

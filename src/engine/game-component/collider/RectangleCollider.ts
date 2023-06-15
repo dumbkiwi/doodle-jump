@@ -1,60 +1,67 @@
 import { SpriteRenderer } from '@/engine/game-component/sprite-renderer/SpriteRenderer'
 import { EventManager } from '../../event/Event'
 import { GameObject } from '../../game-object/GameObject'
-import { Collider } from './Collider'
+import ICollider, { CollisionEventArgs } from './Collider'
 import { Transform } from '@/engine/game-component/transform/Transform'
+import { GameComponent, GameComponentDecorator } from '../GameComponent'
 
-export class RectangleCollider extends Collider {
-    public getColliderType = () => 'RectangleCollider' as ColliderType
+export class RectangleCollider extends GameComponentDecorator implements ICollider {
+    private eventManager: EventManager<ColliderEvent, CollisionEventArgs>
+
     public colliderId = -1
+    public mass = 1
+    public tag: ColliderTag = "Default"
+    public velocity: Vector2D
+    public acceleration: Vector2D
 
-    public get x(): number {
-        return this._transform
-            ? Transform.toWorldSpace(this._offsetFromTransform, this._transform).x
-            : this._offsetFromTransform.x
+    public get x() {
+        return this.transform
+            ? Transform.toWorldSpace(this.offsetFromTransform, this.transform).x
+            : this.offsetFromTransform.x
     }
+
     public set x(value: number) {
-        this._offsetFromTransform.x = this._transform
-            ? Transform.toLocalSpace({ x: value, y: this._offsetFromTransform.y }, this._transform)
+        this.offsetFromTransform.x = this.transform
+            ? Transform.toLocalSpace({ x: value, y: this.offsetFromTransform.y }, this.transform)
                   .x
             : value
     }
 
-    public get y(): number {
-        return this._transform
-            ? Transform.toWorldSpace(this._offsetFromTransform, this._transform).y
-            : this._offsetFromTransform.y
+    public get y() {
+        return this.transform
+            ? Transform.toWorldSpace(this.offsetFromTransform, this.transform).y
+            : this.offsetFromTransform.y
     }
 
     public set y(value: number) {
-        this._offsetFromTransform.y = this._transform
-            ? Transform.toLocalSpace({ x: this._offsetFromTransform.x, y: value }, this._transform)
+        this.offsetFromTransform.y = this.transform
+            ? Transform.toLocalSpace({ x: this.offsetFromTransform.x, y: value }, this.transform)
                   .y
             : value
     }
-
+    
     public get width(): number {
-        return this._size.x
+        return this.size.x
     }
 
     public set width(value: number) {
-        this._size.x = value
+        this.size.x = value
     }
 
     public get height(): number {
-        return this._size.y
+        return this.size.y
     }
 
     public set height(value: number) {
-        this._size.y = value
+        this.size.y = value
     }
 
     public get right(): number {
-        return this.x + this._size.x
+        return this.x + this.size.x
     }
 
     public set right(value: number) {
-        this.x = value - this._size.x
+        this.x = value - this.size.x
     }
 
     public get left(): number {
@@ -74,139 +81,47 @@ export class RectangleCollider extends Collider {
     }
 
     public get bottom(): number {
-        return this.y + this._size.y
+        return this.y + this.size.y
     }
 
     public set bottom(value: number) {
-        this.y = value - this._size.y
+        this.y = value - this.size.y
     }
 
     public get centerX(): number {
-        return this.x + this._size.x / 2
+        return this.x + this.size.x / 2
     }
 
     public set centerX(value: number) {
-        this.x = value - this._size.x / 2
+        this.x = value - this.size.x / 2
     }
 
     public get centerY(): number {
-        return this.y + this._size.y / 2
+        return this.y + this.size.y / 2
     }
 
     public set centerY(value: number) {
-        this.y = value - this._size.y / 2
+        this.y = value - this.size.y / 2
     }
 
     public get halfWidth(): number {
-        return this._size.x / 2
+        return this.size.x / 2
     }
 
     public set halfWidth(value: number) {
-        this._size.x = value * 2
+        this.size.x = value * 2
     }
 
     public get halfHeight(): number {
-        return this._size.y / 2
+        return this.size.y / 2
     }
 
     public set halfHeight(value: number) {
-        this._size.y = value * 2
+        this.size.y = value * 2
     }
 
-    // collider
-    private _transform: Transform | undefined
-    private _offsetFromTransform: Vector2D
-    private _size: Vector2D
-    private _eventManager: EventManager<ColliderEvent, Collider>
-    private _velocity: Vector2D
-    private _acceleration: Vector2D
-    private _tag: ColliderTag = 'Default'
-
-    // debug
-    private _debug: boolean
-    private _debugGameObject: GameObject
-    private _debugRenderer: SpriteRenderer
-
-    private _collidingWith: Collider[] = []
-
-    // getters and setters
-    public get collidingColliders(): Collider[] {
-        return this._collidingWith
-    }
-
-    public get velocity(): Vector2D {
-        return this._velocity
-    }
-
-    public set velocity(value: Vector2D) {
-        this._velocity = value
-    }
-
-    public get acceleration(): Vector2D {
-        return this._acceleration
-    }
-
-    public set acceleration(value: Vector2D) {
-        this._acceleration = value
-    }
-
-    public get tag(): ColliderTag {
-        return this._tag
-    }
-
-    public set tag(value: ColliderTag) {
-        this._tag = value
-    }
-
-    constructor(config: RectangleColliderConfig) {
-        super()
-
-        this._velocity = { x: 0, y: 0 }
-        this._acceleration = { x: 0, y: 0 }
-
-        this._offsetFromTransform = config.position
-        this._size = config.size
-        this._tag = config.tag
-        this._debug = config.debug ?? false
-        this._transform = undefined
-
-        // debug
-        this._debugRenderer = new SpriteRenderer({
-            layer: 'ui',
-            size: this._size,
-            baseColor: 'red',
-        })
-
-        this._debugGameObject = new GameObject({
-            components: [
-                new Transform({
-                    position: this._offsetFromTransform,
-                }),
-                this._debugRenderer,
-            ],
-        })
-
-        this._eventManager = new EventManager<ColliderEvent, Collider>()
-
-        if (config.onCollisionEnter) {
-            this._callbacks['collisionEnter'].push(config.onCollisionEnter)
-        }
-
-        if (config.onCollisionExit) {
-            this._callbacks['collisionExit'].push(config.onCollisionExit)
-        }
-
-        if (config.onCollisionStay) {
-            this._callbacks['collisionStay'].push(config.onCollisionStay)
-        }
-
-        // binds so that the methods can access this._callbacks
-        this.onCollisionEnter = this.onCollisionEnter.bind(this)
-        this.onCollisionExit = this.onCollisionExit.bind(this)
-        this.onCollisionStay = this.onCollisionStay.bind(this)
-    }
-
-    public collide(other: Collider): boolean {
+    // utils
+    public isCollidingWith(other: ICollider): boolean {
         if (other instanceof RectangleCollider) {
             return this.collideRectangle(other)
         } else {
@@ -214,36 +129,84 @@ export class RectangleCollider extends Collider {
         }
     }
 
+    public getType = () => "Collider" as GameComponentType
+    public getColliderType = () => 'RectangleCollider' as ColliderType
+    public getCollidingColliders(): ICollider[] {
+        return this.collidingWith
+    }
+    public addCollidingCollider(collider: ICollider): void {
+        this.collidingWith.push(collider)
+    }
+
+    public removeCollidingCollider(colliderId: number): void {
+        // remove collider with id
+        this.collidingWith = this.collidingWith.filter((collider) => collider.colliderId !== colliderId)
+    }
+        
+
+    // runtime
+    public onCollision(event: ColliderEvent, callback: (args: CollisionEventArgs) => void): void {
+        this.eventManager.on(event, callback)
+    }
+
+    public onceCollision(event: ColliderEvent, callback: (args: CollisionEventArgs) => void): void {
+        this.eventManager.once(event, callback)
+    }
+
+    public offCollision(event: ColliderEvent, callback: (args: CollisionEventArgs) => void): void {
+        this.eventManager.off(event, callback)
+    }
+
+    public emitCollision(event: ColliderEvent, args: CollisionEventArgs): void {
+        this.eventManager.emit(event, args)
+    }
+
+    // collider
+    private transform: Transform | undefined
+    private offsetFromTransform: Vector2D
+    private size: Vector2D
+
+    // debug
+    private debug: boolean
+    private debugGameObject: GameObject
+    private debugRenderer: SpriteRenderer
+
+    private collidingWith: ICollider[] = []
+
+    constructor(config: RectangleColliderConfig) {
+        const gameComponent = new GameComponent()
+
+        super(gameComponent)
+
+        this.eventManager = new EventManager<ColliderEvent, CollisionEventArgs>()
+        this.velocity = { x: 0, y: 0 }
+        this.acceleration = { x: 0, y: 0 }
+
+        this.offsetFromTransform = config.position
+        this.size = config.size
+        this.tag = config.tag
+        this.debug = config.debug ?? false
+        this.transform = undefined
+
+        // debug
+        this.debugRenderer = new SpriteRenderer({
+            layer: 'ui',
+            size: this.size,
+            baseColor: 'red',
+        })
+
+        this.debugGameObject = new GameObject({
+            components: [
+                new Transform({
+                    position: this.offsetFromTransform,
+                }),
+                this.debugRenderer,
+            ],
+        })
+    }
+
     public isPointInCollider(x: number, y: number): boolean {
         return x >= this.left && x <= this.right && y >= this.top && y <= this.bottom
-    }
-
-    public on(event: ColliderEvent, callback: (collider: Collider) => void): void {
-        // adds to list of callbacks
-        this._callbacks[event].push(callback)
-    }
-
-    public off(event: ColliderEvent, callback: (collider: Collider) => void): void {
-        // removes from list of callbacks
-        this._callbacks[event] = this._callbacks[event].filter((cb) => cb !== callback)
-    }
-
-    protected onCollisionEnter(other: Collider): void {
-        this._callbacks.collisionEnter.forEach((callback) => {
-            callback(other)
-        })
-    }
-
-    protected onCollisionExit(other: Collider): void {
-        this._callbacks.collisionExit.forEach((callback) => {
-            callback(other)
-        })
-    }
-
-    protected onCollisionStay(other: Collider): void {
-        this._callbacks.collisionStay.forEach((callback) => {
-            callback(other)
-        })
     }
 
     private collideRectangle(other: RectangleCollider): boolean {
@@ -255,91 +218,53 @@ export class RectangleCollider extends Collider {
         )
     }
 
-    public override init(gameObject: GameObject): void {
+    public init(gameObject: GameObject): void {
         super.init(gameObject)
-
-        if (this._debug) {
+        if (this.debug) {
             this.setDebug(true)
         }
 
-        this._transform = gameObject.getTransform()
-        this._eventManager.on('collisionEnter', this.onCollisionEnter)
-        this._eventManager.on('collisionExit', this.onCollisionExit)
-        this._eventManager.on('collisionStay', this.onCollisionStay)
+        // register this if it is active
+        if (this.getActive()) {
+            this.colliderId = gameObject.getGame()?.physics.registerCollider(this) ?? -1
+        }
+
+        this.transform = gameObject.getTransform()
     }
 
-    protected onUpdate = (_delta: number): void => {
-        // if there is a gameobject call getColliders on gameobject to get all active colliders in game object
-        if (!this.gameObject) {
-            throw new Error('Collider does not have a game object')
-        }
-
-        // if collider is not active, do not check for collisions
-        if (!this.isActive) {
-            return
-        }
-
-        const game = this.gameObject.getGame()
-
-        if (game === undefined) {
-            throw new Error('Collider does not have a game')
-        }
-
-        // TODO: this should be done in the Rigidbody component
-
-        // get all colliders
-        const colliders = Collider.getAllColliders(game)
-        for (const collider of colliders) {
-            // ignore self
-            if (collider === this) {
-                continue
+    public setActive(value: boolean): void {
+        super.setActive(value)
+        if (value === true && this.colliderId === -1) {
+            this.colliderId = this.getGameObject()
+                ?.getGame()
+                ?.physics.registerCollider(this) ?? -1
+        } else if (value === false) {
+            if (this.colliderId === -1) {
+                throw new Error('Collider id is -1')
             }
 
-            const isColliding = this.collide(collider)
-            // check if colliders collide
-            if (isColliding) {
-                // if they collide, check if they are already colliding
-                if (!this._collidingWith.includes(collider)) {
-                    // if they are not colliding, add them to collidingWith
-                    this._collidingWith.push(collider)
-                    this._eventManager.emit('collisionEnter', collider)
-                } else {
-                    // if they are colliding, emit collisionStay
-                    this._eventManager.emit('collisionStay', collider)
-                }
-            }
-
-            // if they are not colliding, check if they were colliding
-            // if they were colliding, remove them from collidingWith
-            if (!isColliding && this._collidingWith.includes(collider)) {
-                this._collidingWith.splice(this._collidingWith.indexOf(collider), 1)
-                this._eventManager.emit('collisionExit', collider)
-            }
+            this.getGameObject()?.getGame()?.physics.unregisterCollider(this.colliderId)
+            this.colliderId = -1
         }
-    }
-
-    public destroy(): void {
-        this._eventManager.off('collisionEnter', this.onCollisionEnter)
-        this._eventManager.off('collisionExit', this.onCollisionExit)
-        this._eventManager.off('collisionStay', this.onCollisionStay)
     }
 
     // for debugging
     public setDebug(debug: boolean): void {
-        this._debug = debug
+        this.debug = debug
+        const gameObject = this.getGameObject()
 
-        if (!this.gameObject) {
+        if (!gameObject) {
             return
         }
 
         // add sprite renderer to the game object
         if (debug) {
-            this.gameObject.addChildren(this._debugGameObject)
-            this._debugRenderer.init(this.gameObject)
-            this._debugRenderer.setActive(true)
+            gameObject.addChildren(this.debugGameObject)
+            this.debugRenderer.init(gameObject)
+            this.debugRenderer.setActive(true)
         } else {
-            this._debugRenderer.setActive(false)
-            this.gameObject.removeChildren(this._debugGameObject)
+            this.debugRenderer.setActive(false)
+            gameObject.removeChildren(this.debugGameObject)
         }
     }
 }

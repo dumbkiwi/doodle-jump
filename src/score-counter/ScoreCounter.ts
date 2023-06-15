@@ -1,19 +1,30 @@
-import { GameObject } from '../engine/game-object/GameObject'
+import { GameObject, IGameObject } from '../engine/game-object/GameObject'
 import { Label } from '../engine/game-component/label/Label'
 import { Transform } from '../engine/game-component/transform/Transform'
+import { GameComponentDecorator } from '@/engine/game-component/GameComponent'
+import { Player } from '@/player/Player'
 
-export class ScoreCounter extends Label {
+export class ScoreCounter extends GameComponentDecorator {
     private scrollViewTransform: Transform
-    constructor(scrollViewObject: GameObject, config: LabelConfig) {
-        super(config)
+    private label: Label
+    private player: Player
 
+    constructor(scrollViewObject: GameObject, player: Player, config: LabelConfig) {
+        const label = new Label(config)
+        super(label)
+
+        this.label = label
         this.scrollViewTransform = scrollViewObject.getTransform()
+        this.player = player
     }
 
-    protected onUpdate = (_delta: number) => {
-        this.render(this.getGameObject()?.getGame()?.context as CanvasRenderingContext2D)
-        this.config.text = `Score: ${Math.floor(
-            Math.round(this.scrollViewTransform.localPosition.y / 100)
+    public init(gameObject: IGameObject): void {
+        super.init(gameObject)
+
+        this.on('update', () => {
+            this.label.config.text = `Score: ${Math.floor(
+            Math.round(-this.player.getScore() / 10)
         )}`
+        })
     }
 }

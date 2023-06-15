@@ -1,12 +1,12 @@
 import { canvasSize } from '@/canvasSize'
-import { Collider } from '@/engine/game-component/collider/Collider'
+import ICollider from '@/engine/game-component/collider/Collider'
 import { RectangleCollider } from '@/engine/game-component/collider/RectangleCollider'
 import { GameObject, GameObjectDecorator } from '@/engine/game-object/GameObject'
 import { Transform } from '@/engine/game-component/transform/Transform'
 
 export class Wall extends GameObjectDecorator {
-    private leftCollider: Collider
-    private rightCollider: Collider
+    private leftCollider: ICollider
+    private rightCollider: ICollider
     private teleportTolerance: number
     constructor(config: { teleportTolerance: number }) {
         const leftCollider = new RectangleCollider({
@@ -63,11 +63,11 @@ export class Wall extends GameObjectDecorator {
             })
         )
 
-        leftCollider.on('collisionStay', (other) => {
+        leftCollider.onCollision('collisionStay', ({other}) => {
             this.tryTeleportPlayer(true, other)
         })
 
-        rightCollider.on('collisionStay', (other) => {
+        rightCollider.onCollision('collisionStay', ({other}) => {
             this.tryTeleportPlayer(false, other)
         })
 
@@ -76,7 +76,7 @@ export class Wall extends GameObjectDecorator {
         this.rightCollider = rightCollider
     }
 
-    private tryTeleportPlayer(left: boolean, other: Collider) {
+    private tryTeleportPlayer(left: boolean, other: ICollider) {
         const otherTransform = other.getGameObject()?.getTransform()
 
         if (!otherTransform) {

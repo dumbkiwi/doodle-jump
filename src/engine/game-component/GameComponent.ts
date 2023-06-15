@@ -18,8 +18,8 @@ export interface IGameComponent extends IRuntimeObject {
 
 export class GameComponent implements IGameComponent {
     private attachedGameObject: IGameObject | undefined
-    protected isActive: boolean
-    protected isDestroyed: boolean
+    private isActive: boolean
+    private isDestroyed: boolean
 
     constructor() {
         this.isDestroyed = false
@@ -65,8 +65,8 @@ export class GameComponent implements IGameComponent {
         return this.isActive
     }
 
-    public getType = () => "Forbidden" as GameComponentType
-    public getGameObject: () => (IGameObject | undefined) = () => this.attachedGameObject
+    public getType() {return "Forbidden" as GameComponentType}
+    public getGameObject(): (IGameObject | undefined) {return this.attachedGameObject}
     public setGameObject(value: IGameObject | undefined): void {
         this.attachedGameObject = value
     }
@@ -110,8 +110,8 @@ export class GameComponentDecorator implements IGameComponent {
         return this.wrapper.getActive()
     }
 
-    public getType = () => this.wrapper.getType()
-    public getGameObject: () => (IGameObject | undefined) = () => this.wrapper.getGameObject()
+    public getType() {return this.wrapper.getType()}
+    public getGameObject() {return this.wrapper.getGameObject()}
     public setGameObject(value: IGameObject | undefined): void {
         this.wrapper.setGameObject(value)
     }

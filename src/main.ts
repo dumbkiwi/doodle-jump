@@ -12,12 +12,12 @@ import { BasicPlatform } from './platform/BasicPlatform'
 import { PlatformSpawner } from './gameplay/PlatformSpawner'
 import { Transform } from './engine/game-component/transform/Transform'
 import { ScoreCounter } from './score-counter/ScoreCounter'
-import { MovingPlatform } from './platform/MovingPlatform'
 import { Wall } from './gameplay/wallObject'
 import { GameOverTrigger } from './gameplay/gameOverObject'
+import OverlayObject from './gameplay/OverlayObject'
 
 const scrollViewGameObject = new ScrollView({
-    smoothing: 0.1,
+    smoothing: 0.2,
     playerCollider: player.getComponent('Collider') as RectangleCollider,
     triggerArea: {
         // half of the upper part of the screen
@@ -53,7 +53,7 @@ const platformTemplate: PlatformConfig = {
         x: 60,
         y: 20,
     },
-    bounciness: 54,
+    bounciness: 10,
 } as const
 
 // helper platforms
@@ -127,7 +127,7 @@ const spawner = new PlatformSpawner({
             y: canvasSize.y + 10, // move off screen a bit to hide the disappearing platforms
         },
     },
-    minimumPlatformDistance: 20, // how far apart does each platform have to be to start spawning 20
+    minimumPlatformDistance: 30, // how far apart does each platform have to be to start spawning 20
     spawnParentObject: view,
     platformTemplate: platformTemplate,
 })
@@ -142,7 +142,7 @@ const scoreCounterObject = new GameObject({
                 y: 40,
             },
         }),
-        new ScoreCounter(view, {
+        new ScoreCounter(view, player, {
             color: 'black',
             size: '24px',
             fontFamily: 'Consolas',
@@ -175,6 +175,9 @@ const gameOverTrigger = new GameOverTrigger({
     backgroundHeight: 600,
 })
 
+// overlay
+const overlayObject = new OverlayObject()
+
 // game
 // order in gameObjects is also the rendering order
 const doodle = new Game(
@@ -189,6 +192,7 @@ const doodle = new Game(
         fpsCounterGameObject,
         titleGameObject,
         instructionsGameObject,
+        overlayObject,
     ],
     canvasSize
 )

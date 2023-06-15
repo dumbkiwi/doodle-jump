@@ -3,12 +3,12 @@ import { RectangleCollider } from "@/engine/game-component/collider/RectangleCol
 import { GameObject, GameObjectDecorator } from "@/engine/game-object/GameObject"
 import { BackgroundGameObject } from "./backgroundObject"
 import { ScrollView } from "@/engine/game-object/scrollView/ScrollView"
-import { Collider } from "@/engine/game-component/collider/Collider"
+import ICollider from "@/engine/game-component/collider/Collider"
 
 export class GameOverTrigger extends GameObjectDecorator {
     private background: BackgroundGameObject
     private scrollview: ScrollView
-    private collider: Collider
+    private collider: ICollider
 
     constructor(config: {
         background: BackgroundGameObject
@@ -28,7 +28,7 @@ export class GameOverTrigger extends GameObjectDecorator {
             // debug: true
         })
 
-        gameOverCollider.on('collisionEnter', (other) => {
+        gameOverCollider.onCollision('collisionEnter', ({other}) => {
             if (other.tag === 'Player') {
                 console.log('game over')
                 

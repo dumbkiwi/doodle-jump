@@ -1,11 +1,11 @@
-import { Collider } from '@/engine/game-component/collider/Collider'
+import ICollider, { CollisionEventArgs } from '@/engine/game-component/collider/Collider'
 import { BasicPlatform } from './BasicPlatform'
 import { Game } from '@/engine/game/Game'
 
 export class MovingPlatform extends BasicPlatform {
     private movingDirection: 1 | -1
     private speed: number
-    private collider: Collider
+    private collider: ICollider
 
     constructor(config: MovingPlatformConfig) {
         super(config)
@@ -13,7 +13,7 @@ export class MovingPlatform extends BasicPlatform {
         this.movingDirection = config.startingDirection === 'left' ? -1 : 1
         this.speed = config.speed
 
-        const collider = this.getComponent<Collider>('Collider')
+        const collider = this.getComponent<ICollider>('Collider')
 
         if (!collider) {
             throw new Error('MovingPlatform requires a Collider')
@@ -25,7 +25,7 @@ export class MovingPlatform extends BasicPlatform {
     public override init(game: Game) {
         super.init(game)
 
-        this.collider.on('collisionEnter', (other: Collider) => {
+        this.collider.onCollision('collisionEnter', ({other}: CollisionEventArgs) => {
             // if other is a platform and is on the right of this platform, reverse direction
             if (other.tag === 'Wall') {
                 if (other.x > this.collider.x) {

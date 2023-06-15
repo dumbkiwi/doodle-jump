@@ -1,4 +1,4 @@
-import { GameComponent } from '../game-component/GameComponent'
+import { IGameComponent } from '../game-component/GameComponent'
 import { Game } from '../game/Game'
 import { IRuntimeObject } from '../runtime-object/IRuntimeObject'
 import { Transform } from '../game-component/transform/Transform'
@@ -29,12 +29,12 @@ export interface IGameObject extends IRuntimeObject {
     getGame(): Game | undefined
 
     //// components
-    getComponent<T extends GameComponent>(type: GameComponentType): T | undefined
-    getComponents<T extends GameComponent>(type: GameComponentType): T[]
-    getAllComponents(): GameComponent[]
-    getComponentsInChildren<T extends GameComponent>(type: GameComponentType): T[]
-    addComponent(component: GameComponent): GameComponent
-    removeComponent(component: GameComponent): GameComponent
+    getComponent<T extends IGameComponent>(type: GameComponentType): T | undefined
+    getComponents<T extends IGameComponent>(type: GameComponentType): T[]
+    getAllComponents(): IGameComponent[]
+    getComponentsInChildren<T extends IGameComponent>(type: GameComponentType): T[]
+    addComponent(component: IGameComponent): IGameComponent
+    removeComponent(component: IGameComponent): IGameComponent
     addChildren(gameObject: IGameObject): IGameObject
     removeChildren(gameObject: IGameObject): IGameObject
     getChildren(): IGameObject[]
@@ -51,7 +51,7 @@ export class GameObject implements IGameObject {
     private game: Game | undefined
     private parent: IGameObject | undefined
     private children: IGameObject[]
-    private components: GameComponent[]
+    private components: IGameComponent[]
 
     // cached components
     private transform: Transform
@@ -159,28 +159,28 @@ export class GameObject implements IGameObject {
         return this.game
     }
     //// components
-    public getComponent<T extends GameComponent>(type: GameComponentType): T | undefined {
+    public getComponent<T extends IGameComponent>(type: GameComponentType): T | undefined {
         return this.components.find<T>((component): component is T => component.getType() === type)
     }
-    public getComponents<T extends GameComponent>(type: GameComponentType): T[] {
+    public getComponents<T extends IGameComponent>(type: GameComponentType): T[] {
         return this.components.filter<T>(
             (component): component is T => component.getType() === type
         )
     }
-    public getAllComponents(): GameComponent[] {
+    public getAllComponents(): IGameComponent[] {
         return this.components
     }
-    public getComponentsInChildren<T extends GameComponent>(type: GameComponentType): T[] {
+    public getComponentsInChildren<T extends IGameComponent>(type: GameComponentType): T[] {
         return this.children.reduce<T[]>((components, child) => {
             return [...components, ...child.getComponentsInChildren<T>(type)]
         }, this.getComponents<T>(type))
     }
-    public addComponent(component: GameComponent): GameComponent {
+    public addComponent(component: IGameComponent): IGameComponent {
         this.components.push(component)
         component.setGameObject(this)
         return component
     }
-    public removeComponent(component: GameComponent): GameComponent {
+    public removeComponent(component: IGameComponent): IGameComponent {
         const index = this.components.indexOf(component)
         if (index === -1) {
             throw new Error('Cannot remove a component that does not exist')
@@ -257,22 +257,22 @@ export class GameObjectDecorator implements IGameObject {
         return this.wrappee.getGame()
     }
     //// components
-    getComponent<T extends GameComponent>(type: GameComponentType): T | undefined {
+    getComponent<T extends IGameComponent>(type: GameComponentType): T | undefined {
         return this.wrappee.getComponent<T>(type)
     }
-    getComponents<T extends GameComponent>(type: GameComponentType): T[] {
+    getComponents<T extends IGameComponent>(type: GameComponentType): T[] {
         return this.wrappee.getComponents<T>(type)
     }
-    getAllComponents(): GameComponent[] {
+    getAllComponents(): IGameComponent[] {
         return this.wrappee.getAllComponents()
     }
-    getComponentsInChildren<T extends GameComponent>(type: GameComponentType): T[] {
+    getComponentsInChildren<T extends IGameComponent>(type: GameComponentType): T[] {
         return this.wrappee.getComponentsInChildren<T>(type)
     }
-    addComponent(component: GameComponent): GameComponent {
+    addComponent(component: IGameComponent): IGameComponent {
         return this.wrappee.addComponent(component)
     }
-    removeComponent(component: GameComponent): GameComponent {
+    removeComponent(component: IGameComponent): IGameComponent {
         return this.wrappee.removeComponent(component)
     }
     //// game objects

@@ -2,11 +2,13 @@ import { Renderer } from '@/engine/renderer/Renderer'
 import { RequestAnimationFrame } from '../dom/RequestAnimationFrame'
 import { EventManager } from '../event/Event'
 import { IGameObject } from '../game-object/GameObject'
+import Physics from '../physics/Physics'
 
 export class Game {
     public canvas: HTMLCanvasElement
     public context: CanvasRenderingContext2D
     public events: EventManager<GameEvent, number>
+    public physics: Physics
     public renderer: Renderer
 
     private runtimeEventManager: EventManager<RuntimeEvent, string>
@@ -28,6 +30,7 @@ export class Game {
             this.stop()
         })
         this.events = new EventManager<GameEvent, number>()
+        this.physics = new Physics(this)
         this.raf = new RequestAnimationFrame()
 
         this.hasInitialized = false

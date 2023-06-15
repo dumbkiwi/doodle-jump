@@ -1,108 +1,50 @@
-import { GameComponent } from '../GameComponent'
-import { Game } from '../../game/Game'
+import { IGameComponent } from "../GameComponent"
 
-export abstract class Collider extends GameComponent {
-    private static readonly activeColliders: Collider[] = []
-    private _type: GameComponentType = 'Collider'
-    protected _callbacks: {
-        [key in ColliderEvent]: ((other: Collider) => void)[]
-    }
+export interface CollisionEventArgs {
+    self: ICollider
+    other: ICollider
+}
 
-    public getType(): GameComponentType {
-        return this._type
-    }
+export default interface ICollider extends IGameComponent {
+    // utils
+    isCollidingWith(other: ICollider): boolean
 
-    constructor() {
-        super()
-        this._callbacks = {
-            collisionEnter: [],
-            collisionExit: [],
-            collisionStay: [],
-        }
-    }
+    getColliderType(): ColliderType
+    getCollidingColliders(): ICollider[]
 
-    public static getAllColliders(game: Game): Collider[] {
-        return Collider.activeColliders.filter(
-            (collider) => collider.getGameObject()?.getGame() === game &&
-                collider.isActive
-        )
-    }
+    addCollidingCollider(collider: ICollider): void
+    removeCollidingCollider(colliderId: number): void
 
-    protected static registerCollider(collider: Collider): number {
-        return Collider.activeColliders.push(collider) - 1
-    }
+    // runtime
+    onCollision(event: ColliderEvent, callback: (args: CollisionEventArgs) => void): void
+    onceCollision(event: ColliderEvent, callback: (args: CollisionEventArgs) => void): void
+    offCollision(event: ColliderEvent, callback: (args: CollisionEventArgs) => void): void
+    emitCollision(event: ColliderEvent, args: CollisionEventArgs): void
 
-    protected static unregisterCollider(index: number) {
-        Collider.activeColliders.splice(index, 1)
-    }
+    // getters and setters
+    colliderId: number
 
-    public abstract getColliderType(): ColliderType
+    tag: ColliderTag
 
-    public abstract get collidingColliders(): Collider[]
+    velocity: Vector2D
+    acceleration: Vector2D
+    
+    mass: number
 
-    public abstract get colliderId(): number
-    public abstract set colliderId(value: number)
+    x: number
+    y: number
+    
+    width: number
+    height: number
 
-    public abstract get tag(): ColliderTag
-    public abstract set tag(value: ColliderTag)
+    right: number
+    left: number
+    top: number
+    bottom: number
 
-    public abstract get velocity(): Vector2D
-    public abstract set velocity(value: Vector2D)
+    centerX: number
+    centerY: number
 
-    public abstract get acceleration(): Vector2D
-    public abstract set acceleration(value: Vector2D)
-
-    public abstract get x(): number
-    public abstract set x(value: number)
-
-    public abstract get y(): number
-    public abstract set y(value: number)
-
-    public abstract get width(): number
-    public abstract set width(value: number)
-
-    public abstract get height(): number
-    public abstract set height(value: number)
-
-    public abstract get right(): number
-    public abstract set right(value: number)
-
-    public abstract get left(): number
-    public abstract set left(value: number)
-
-    public abstract get top(): number
-    public abstract set top(value: number)
-
-    public abstract get bottom(): number
-    public abstract set bottom(value: number)
-
-    public abstract get centerX(): number
-    public abstract set centerX(value: number)
-
-    public abstract get centerY(): number
-    public abstract set centerY(value: number)
-
-    public abstract get halfWidth(): number
-    public abstract set halfWidth(value: number)
-
-    public abstract set halfHeight(value: number)
-    public abstract get halfHeight(): number
-
-    public override setActive(value: boolean): void {
-        super.setActive(value)
-        if (value) {
-            this.colliderId = Collider.registerCollider(this)
-        } else {
-            Collider.unregisterCollider(this.colliderId)
-            this.colliderId = -1
-        }
-    }
-
-    public abstract collide(other: Collider): boolean
-    public abstract isPointInCollider(x: number, y: number): boolean
-    public abstract on(event: ColliderEvent, callback: (other: Collider) => void): void
-    public abstract off(event: ColliderEvent, callback: (other: Collider) => void): void
-    protected abstract onCollisionEnter(other: Collider): void
-    protected abstract onCollisionExit(other: Collider): void
-    protected abstract onCollisionStay(other: Collider): void
+    halfWidth: number
+    halfHeight: number
 }

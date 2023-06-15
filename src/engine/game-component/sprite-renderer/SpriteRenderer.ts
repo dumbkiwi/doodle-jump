@@ -1,7 +1,7 @@
-import { GameComponent } from '../GameComponent'
+import { GameComponent, GameComponentDecorator } from '../GameComponent'
 import { IGameObject } from '../../game-object/GameObject'
 
-export class SpriteRenderer extends GameComponent {
+export class SpriteRenderer extends GameComponentDecorator {
     public layer: RenderingLayer
     public size: Vector2D
     public baseColor: string
@@ -16,7 +16,8 @@ export class SpriteRenderer extends GameComponent {
     public getType = () => 'SpriteRenderer' as GameComponentType
 
     constructor(config: SpriteRendererConfig) {
-        super()
+        const base = new GameComponent()
+        super(base)
 
         this.layer = config.layer
         this.size = config.size ?? { x: 1, y: 1 }
@@ -58,12 +59,10 @@ export class SpriteRenderer extends GameComponent {
     }
 
     public override init(gameObject: IGameObject): void {
-        // ignore original init, trying to deprecate it
-        // super.init(gameObject)
+        super.init(gameObject)
 
         // add render event
-        this.gameObject = gameObject
-        this.gameObject.getGame()?.renderer.on('render', this.layer, () => {
+        this.getGameObject()?.getGame()?.renderer.on('render', this.layer, () => {
             this.render(this.getGameObject())
         })
     }

@@ -2,6 +2,7 @@ import { RectangleCollider } from '../../game-component/collider/RectangleCollid
 import { GameObject, GameObjectDecorator } from '../GameObject'
 import { Game } from '../../game/Game'
 import { Transform } from '../../game-component/transform/Transform'
+import Rigibody from '@/engine/game-component/rigidbody/Rigidbody'
 
 export class ScrollView extends GameObjectDecorator {
     private viewGameObject: GameObject
@@ -36,21 +37,20 @@ export class ScrollView extends GameObjectDecorator {
         this.scrollDistance = 0
         this.triggerCollider = triggerCollider
 
-        this.triggerCollider.on('collisionStay', (other) => {
-            if (other.tag === 'Player' && other.velocity.y < 0) {
-                this.addScrollDistance(-other.velocity.y)
+        this.triggerCollider.onCollision('collisionStay', ({other}) => {
+            const rigidbody = other.getGameObject()?.getComponent<Rigibody>('Rigidbody')
+
+            if (rigidbody && other.tag === 'Player' && rigidbody.velocity.y < 0) {
+                this.addScrollDistance(-rigidbody.velocity.y)
             }
         })
     }
 
     public override init(game: Game) {
-        // init scroll distance
+        super.init(game)
         this.scrollDistance = 0
         
         this.on('update', () => {this.move()})
-
-        // added last because there was changes to the list of components
-        super.init(game)
     }
 
     private move() {

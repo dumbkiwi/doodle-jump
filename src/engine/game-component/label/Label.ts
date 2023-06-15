@@ -1,13 +1,13 @@
-import { GameComponent } from '../GameComponent'
+import { IGameObject } from '@/engine/game-object/GameObject'
+import { GameComponent, GameComponentDecorator } from '../GameComponent'
+import { RenderEventArgs } from '@/engine/renderer/Renderer'
 
-export class Label extends GameComponent {
+export class Label extends GameComponentDecorator {
     public config: LabelConfig
 
-    // extends gameComponent
-    public getType = () => 'Label' as GameComponentType
-
     constructor(config: LabelConfig) {
-        super()
+        const base = new GameComponent()
+        super(base)
 
         this.config = {
             text: 'Sample Text',
@@ -16,6 +16,13 @@ export class Label extends GameComponent {
             fontFamily: 'Arial',
             ...config,
         }
+    }
+
+    public init(gameObject: IGameObject): void {
+        super.init(gameObject)
+        this.getGameObject()?.getGame()?.renderer.on('render', 'ui', ({context}: RenderEventArgs) => {
+            this.render(context)
+        })
     }
 
     public render(context: CanvasRenderingContext2D) {
@@ -38,9 +45,5 @@ export class Label extends GameComponent {
             transform.worldPosition.x,
             transform.worldPosition.y
         )
-    }
-
-    protected onUpdate = (_delta: number) => {
-        this.render(this.getGameObject()?.getGame()?.context as CanvasRenderingContext2D)
     }
 }

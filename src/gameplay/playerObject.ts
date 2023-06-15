@@ -7,9 +7,10 @@ const player = new Player({
         x: 50,
         y: 80, // being ovewritten in debug
     },
-    speed: 20,
-    gravity: 1.64,
-    friction: 0.8,
+    mass: 1,
+    speed: 15,
+    gravity: 0.2,
+    drag: 0.25,
 })
 
 // player's transform

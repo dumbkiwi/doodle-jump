@@ -1,5 +1,5 @@
 import { SpriteRenderer } from '@/engine/game-component/sprite-renderer/SpriteRenderer'
-import { Collider } from '../engine/game-component/collider/Collider'
+import ICollider from '../engine/game-component/collider/Collider'
 import { RectangleCollider } from '../engine/game-component/collider/RectangleCollider'
 import { GameObject, GameObjectDecorator } from '../engine/game-object/GameObject'
 import { Game } from '../engine/game/Game'
@@ -7,6 +7,7 @@ import lik from '#/doodle-jump/lik-left@2x.png'
 import likReverse from '#/doodle-jump/lik-right@2x.png'
 import likJump from '#/doodle-jump/lik-left-odskok@2x.png'
 import likReverse_Jump from '#/doodle-jump/lik-right-odskok@2x.png'
+import Rigibody from '@/engine/game-component/rigidbody/Rigidbody'
 
 export class Player extends GameObjectDecorator {
     private control: {
@@ -14,13 +15,23 @@ export class Player extends GameObjectDecorator {
         right: boolean
     }
     private speed: number
-    private gravity: number
-    private friction: number
-    private collider: Collider
+    private rigidbody: Rigibody
+    private collider: ICollider
     private spriteRenderer: SpriteRenderer
     private lastMoveDirection: number
+    private score: number
+
+    public getScore() {
+        return this.score
+    }
 
     constructor(config: PlayerConfig) {
+        const rigidbody = new Rigibody({
+            mass: config.mass,
+            gravity: config.gravity,
+            drag: config.drag,
+        })
+
         const collider = new RectangleCollider({
             tag: 'Player',
             position: {
@@ -31,7 +42,6 @@ export class Player extends GameObjectDecorator {
                 x: 55,
                 y: 30,
             },
-            // debug: true
         })
 
         const spriteRenderer = new SpriteRenderer({
@@ -48,16 +58,16 @@ export class Player extends GameObjectDecorator {
             startActive: config.startActive,
             parent: config.parent,
             children: [...(config.children ?? [])],
-            components: [spriteRenderer, collider],
+            components: [rigidbody, spriteRenderer, collider],
         })
 
         super(gameObject)
 
-        this.speed = config.speed
-        this.gravity = config.gravity
-        this.friction = config.friction
+        this.speed = config.speed / 10
         this.collider = collider
         this.spriteRenderer = spriteRenderer
+        this.rigidbody = rigidbody
+        this.score = 0
 
         this.control = {
             left: false,
@@ -68,17 +78,21 @@ export class Player extends GameObjectDecorator {
     public override init(game: Game): void {
         super.init(game)
 
-        this.on('update', this.move.bind(this))
+        this.on('update', () => {
+            // update score
+            this.score = this.getTransform().localPosition.y < this.score ? this.getTransform().localPosition.y : this.score
+            this.move()
+        })
 
         // subscribe velocity control to keydown event
-        document.addEventListener('keydown', this.onKeyDown.bind(this))
+        document.addEventListener('keydown', (e) => {this.onKeyDown(e)})
 
         // subscribe velocity control to keyup event
-        document.addEventListener('keyup', this.onKeyUp.bind(this))
+        document.addEventListener('keyup', (e) => {this.onKeyUp(e)})
     }
 
-    private move = (delta: number): void => {
-        const transform = this.getTransform()
+    private move(): void {
+        // const transform = this.getTransform()
         // move player based on control
         let moveDirection = 0
         if (this.control.left) {
@@ -90,7 +104,7 @@ export class Player extends GameObjectDecorator {
         }
 
         // jump vs fall sprite
-        if (this.collider.velocity.y < 0) {
+        if (this.rigidbody.velocity.y < 0) {
             if (this.lastMoveDirection < 0) {
                 this.spriteRenderer.setImageSource(likJump)
             } else {
@@ -106,22 +120,8 @@ export class Player extends GameObjectDecorator {
 
         this.lastMoveDirection = moveDirection !== 0 ? moveDirection : this.lastMoveDirection
 
-        // deprecated due to the use of acceleration
-        // transform.localPosition.x += (moveDirection * this.speed) / delta
-
-        // with acceleration
-        this.collider.acceleration.x = moveDirection * this.speed
-
-        // velocity
-        this.collider.velocity.x += this.collider.acceleration.x / delta
-        this.collider.velocity.x *= this.friction
-        transform.localPosition.x += this.collider.velocity.x
-
-        // with gravity
-        this.collider.acceleration.y += this.gravity
-        this.collider.velocity.y += this.collider.acceleration.y / delta
-        this.collider.velocity.y *= this.friction
-        transform.localPosition.y += this.collider.velocity.y
+        // move player
+        this.rigidbody.addForce({ x: moveDirection * this.speed, y: 0 })
     }
 
     private onKeyDown(keydown: KeyboardEvent) {
