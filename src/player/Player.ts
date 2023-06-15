@@ -1,7 +1,12 @@
-import { Collider } from '../collider/Collider'
-import { RectangleCollider } from '../collider/RectangleCollider'
-import { GameObject, GameObjectDecorator } from '../game-object/GameObject'
-import { Game } from '../game/Game'
+import { SpriteRenderer } from '@/engine/sprite-renderer/SpriteRenderer'
+import { Collider } from '../engine/collider/Collider'
+import { RectangleCollider } from '../engine/collider/RectangleCollider'
+import { GameObject, GameObjectDecorator } from '../engine/game-object/GameObject'
+import { Game } from '../engine/game/Game'
+import lik from '#/doodle-jump/lik-left@2x.png'
+import likReverse from '#/doodle-jump/lik-right@2x.png'
+import likJump from '#/doodle-jump/lik-left-odskok@2x.png'
+import likReverse_Jump from '#/doodle-jump/lik-right-odskok@2x.png'
 
 export class Player extends GameObjectDecorator {
     private control: {
@@ -12,21 +17,38 @@ export class Player extends GameObjectDecorator {
     private gravity: number
     private friction: number
     private collider: Collider
+    private spriteRenderer: SpriteRenderer
+    private lastMoveDirection: number
 
     constructor(config: PlayerConfig) {
         const collider = new RectangleCollider({
             tag: 'Player',
             position: {
                 x: 0,
-                y: 0,
+                y: 20,
             },
-            size: { x: config.size.x, y: config.size.y },
+            size: {
+                x: 55,
+                y: 30,
+            },
+            // debug: true
         })
+
+        const spriteRenderer = new SpriteRenderer({
+            layer: 'foreground',
+            size: {
+                x: 75,
+                y: 75,
+            },
+            baseColor: 'white',
+            imageSrc: lik,
+        })
+
         const gameObject = new GameObject({
             startActive: config.startActive,
             parent: config.parent,
             children: [...(config.children ?? [])],
-            components: [collider],
+            components: [spriteRenderer, collider],
         })
 
         super(gameObject)
@@ -35,6 +57,7 @@ export class Player extends GameObjectDecorator {
         this.gravity = config.gravity
         this.friction = config.friction
         this.collider = collider
+        this.spriteRenderer = spriteRenderer
 
         this.control = {
             left: false,
@@ -61,15 +84,43 @@ export class Player extends GameObjectDecorator {
         if (this.control.left) {
             moveDirection -= 1
         }
+
         if (this.control.right) {
             moveDirection += 1
         }
 
-        transform.localPosition.x += (moveDirection * this.speed) / delta
+        // jump vs fall sprite
+        if (this.collider.velocity.y < 0) {
+            if (this.lastMoveDirection < 0) {
+                this.spriteRenderer.setImageSource(likJump)
+            } else {
+                this.spriteRenderer.setImageSource(likReverse_Jump)
+            }
+        } else {
+            if (this.lastMoveDirection < 0) {
+                this.spriteRenderer.setImageSource(lik)
+            } else {
+                this.spriteRenderer.setImageSource(likReverse)
+            }
+        }
+
+        this.lastMoveDirection = moveDirection !== 0 ? moveDirection : this.lastMoveDirection
+
+        // deprecated due to the use of acceleration
+        // transform.localPosition.x += (moveDirection * this.speed) / delta
+
+        // with acceleration
+        this.collider.acceleration.x = moveDirection * this.speed
+
+        // velocity
+        this.collider.velocity.x += this.collider.acceleration.x / delta
+        this.collider.velocity.x *= this.friction
+        transform.localPosition.x += this.collider.velocity.x
 
         // with gravity
-        this.collider.velocity.y += this.gravity / delta
-        this.collider.velocity.y /= this.friction
+        this.collider.acceleration.y += this.gravity
+        this.collider.velocity.y += this.collider.acceleration.y / delta
+        this.collider.velocity.y *= this.friction
         transform.localPosition.y += this.collider.velocity.y
     }
 

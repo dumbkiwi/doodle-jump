@@ -1,26 +1,15 @@
 import { canvasSize } from '../canvasSize'
 import { Player } from '../player/Player'
-import { SpriteRenderer } from '../sprite-renderer/SpriteRenderer'
-
-// player collider
-// player sprite
-const playerSpriteRenderer = new SpriteRenderer({
-    size: {
-        x: 50,
-        y: 50,
-    },
-    baseColor: 'red',
-})
 
 // player
 const player = new Player({
     size: {
         x: 50,
-        y: 50,
+        y: 80, // being ovewritten in debug
     },
-    speed: 110,
-    gravity: 10,
-    friction: 1,
+    speed: 20,
+    gravity: 1.64,
+    friction: 0.8,
 })
 
 // player's transform
@@ -32,7 +21,5 @@ if (!playerTransform) {
 
 playerTransform.localPosition.x = canvasSize.x / 2 - 50 / 2
 playerTransform.localPosition.y = canvasSize.y / 2 - 50 / 2
-
-player.addComponent(playerSpriteRenderer)
 
 export { player }

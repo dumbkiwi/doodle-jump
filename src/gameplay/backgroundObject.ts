@@ -1,28 +1,154 @@
-import { GameObject } from '../game-object/GameObject'
-import { SpriteRenderer } from '../sprite-renderer/SpriteRenderer'
-import { Transform } from '../transform/Transform'
+import { GameObject, GameObjectDecorator } from '../engine/game-object/GameObject'
+import { SpriteRenderer } from '../engine/sprite-renderer/SpriteRenderer'
+import { Transform } from '../engine/transform/Transform'
+
+import backgroundImage from '#/doodle-jump/bck@2x.png'
+import bottomImage from '#/doodle-jump/bottom-tile@2x.png'
+import { RectangleCollider } from '@/engine/collider/RectangleCollider'
 
 // background object
-export const backgroundGameObject = new GameObject({
-    components: [
-        // background transform
-        new Transform({
+export class BackgroundGameObject extends GameObjectDecorator {
+    private collider: RectangleCollider
+    private transform: Transform
+    private scrollDistance: number
+    private smoothing: number
+    private startingPosition
+
+    constructor(config: {
+        onGameOverScrollDistance: number
+        smoothing: number
+    }) {
+        // background collider
+        const collider = new RectangleCollider({
+            tag: 'Trigger',
+            size: {
+                x: 400,
+                y: 100,
+            },
             position: {
                 x: 0,
                 y: 0,
             },
-            rotation: 0,
-            scale: {
-                x: 1,
-                y: 1,
-            },
-        }),
-        new SpriteRenderer({
-            size: {
-                x: 1000,
-                y: 1000,
-            },
-            baseColor: 'white',
-        }),
-    ],
-})
+            // debug: true,
+        })
+        const obj = new GameObject({
+            components: [
+                collider
+            ],
+            children: [
+                new GameObject({
+                    components: [
+                        // black background
+                        new Transform({
+                            position: {
+                                x: 0,
+                                y: 0,
+                            },
+                        }),
+                        new SpriteRenderer({
+                            layer: 'background',
+                            size: {
+                                x: 1000,
+                                y: 1000,
+                            },
+                            baseColor: 'black',
+                        }),
+                    ],
+                }),
+                new GameObject({
+                    components: [
+                        // background transform
+                        new Transform({
+                            position: {
+                                x: 0,
+                                y: 0,
+                            },
+                        }),
+                        new SpriteRenderer({
+                            layer: 'background',
+                            size: {
+                                x: 400,
+                                y: 600,
+                            },
+                            baseColor: 'white',
+                            imageSrc: backgroundImage,
+                        }),
+                    ],
+                }),
+                new GameObject({
+                    components: [
+                        // background transform
+                        new Transform({
+                            position: {
+                                x: 0,
+                                y: 600,
+                            },
+                        }),
+                        new SpriteRenderer({
+                            layer: 'background',
+                            size: {
+                                x: 400,
+                                y: 600,
+                            },
+                            baseColor: 'white',
+                            imageSrc: backgroundImage,
+                        }),
+                    ],
+                }),
+                new GameObject({
+                    components: [
+                        // out of view bottom
+                        new Transform({
+                            position: {
+                                x: 0,
+                                y: 1200,
+                            },
+                        }),
+                        new SpriteRenderer({
+                            layer: 'background',
+                            size: {
+                                x: 400,
+                                y: 100,
+                            },
+                            baseColor: 'white',
+                            imageSrc: bottomImage,
+                        }),
+        
+                    ]
+                })
+            ],
+        })
+
+        
+        // add handler to move the background downwards
+        obj.on("update", () => {
+            this.move()
+        })
+        
+        super(obj)
+        
+        this.collider = collider
+        this.transform = obj.getTransform()
+        this.scrollDistance = config.onGameOverScrollDistance
+        this.smoothing = config.smoothing
+        this.startingPosition = this.transform.localPosition.y
+
+    }
+
+    private move() {
+        if (this.collider.velocity.y > 0) {
+        this.transform.localPosition.y -= this.collider.velocity.y * this.smoothing
+        this.collider.velocity.y *= 1 - this.smoothing
+        }
+    }
+
+    public setGameOver(state: boolean) {
+        if (state) {
+            this.collider.velocity.y = this.scrollDistance
+        } else {
+            this.collider.velocity.y = 0
+            this.transform.localPosition.y = this.startingPosition
+        }
+    }
+}
+

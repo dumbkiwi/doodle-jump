@@ -1,6 +1,6 @@
-import { GameObject } from '../game-object/GameObject'
-import { Label } from '../label/Label'
-import { Transform } from '../transform/Transform'
+import { GameObject } from '../engine/game-object/GameObject'
+import { Label } from '../engine/label/Label'
+import { Transform } from '../engine/transform/Transform'
 
 export class ScoreCounter extends Label {
     private scrollViewTransform: Transform

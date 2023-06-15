@@ -1,10 +1,10 @@
-import { Collider } from '../collider/Collider'
-import { RectangleCollider } from '../collider/RectangleCollider'
-import { GameObject, GameObjectDecorator } from '../game-object/GameObject'
-import { Game } from '../game/Game'
-import { Platform } from '../platform/Platform'
-import { SpriteRenderer } from '../sprite-renderer/SpriteRenderer'
-import { Transform } from '../transform/Transform'
+import { Collider } from '../engine/collider/Collider'
+import { RectangleCollider } from '../engine/collider/RectangleCollider'
+import { GameObject, GameObjectDecorator } from '../engine/game-object/GameObject'
+import { Game } from '../engine/game/Game'
+import { BasicPlatform } from '../platform/BasicPlatform'
+import { SpriteRenderer } from '../engine/sprite-renderer/SpriteRenderer'
+import { Transform } from '../engine/transform/Transform'
 
 export type PlatformSpawnerConfig = Partial<GameObjectConfig> & {
     canvasSize: Vector2D
@@ -26,8 +26,8 @@ export class PlatformSpawner extends GameObjectDecorator {
     private spawnCollider: Collider
     private bufferCollider: Collider
     private platformTemplate: PlatformConfig
-    private spawned: Platform[]
-    private pool: Platform[]
+    private spawned: BasicPlatform[]
+    private pool: BasicPlatform[]
 
     constructor(config: PlatformSpawnerConfig) {
         const spawnCollider = new RectangleCollider({
@@ -69,6 +69,7 @@ export class PlatformSpawner extends GameObjectDecorator {
                         },
                     }),
                     new SpriteRenderer({
+                        layer: 'background',
                         baseColor: 'green',
                         size: {
                             x: config.spawnArea.size.x,
@@ -89,6 +90,7 @@ export class PlatformSpawner extends GameObjectDecorator {
                         },
                     }),
                     new SpriteRenderer({
+                        layer: 'background',
                         baseColor: 'red',
                         size: {
                             x: config.spawnArea.size.x,
@@ -107,12 +109,9 @@ export class PlatformSpawner extends GameObjectDecorator {
                             x: config.despawnArea.position.x,
                             y: config.despawnArea.position.y,
                         },
-                        size: {
-                            x: config.despawnArea.size.x,
-                            y: config.despawnArea.size.y,
-                        },
                     }),
                     new SpriteRenderer({
+                        layer: 'layer_1',
                         baseColor: 'blue',
                         size: {
                             x: config.despawnArea.size.x,
@@ -140,7 +139,7 @@ export class PlatformSpawner extends GameObjectDecorator {
                 throw new Error('Game object is not set')
             }
 
-            if (other.tag === 'Platform' && gameObject instanceof Platform) {
+            if (other.tag === 'Platform' && gameObject instanceof BasicPlatform) {
                 // if a platform enters, despawn it
                 this.recyclePlatform(gameObject)
             }
@@ -204,20 +203,19 @@ export class PlatformSpawner extends GameObjectDecorator {
             y: [this.spawnCollider.top, this.spawnCollider.bottom],
         }
 
-        const spawnPosition = {
+        let spawnPosition = {
             x: Math.random() * (spawnRange.x[1] - spawnRange.x[0]) + spawnRange.x[0],
             y: Math.random() * (spawnRange.y[1] - spawnRange.y[0]) + spawnRange.y[0],
         }
 
         // calculate local position in the spawn parent object
-        spawnPosition.x -= this.spawnParentObject.getTransform().worldPosition.x
-        spawnPosition.y -= this.spawnParentObject.getTransform().worldPosition.y
+        spawnPosition = Transform.toLocalSpace(spawnPosition, this.spawnParentObject.getTransform())
 
         // get platform from the pool
         let platform = this.pool.pop()
 
         if (platform === undefined) {
-            platform = new Platform({
+            platform = new BasicPlatform({
                 ...this.platformTemplate,
                 position: spawnPosition,
             })
@@ -237,7 +235,7 @@ export class PlatformSpawner extends GameObjectDecorator {
         this.spawnParentObject.addChildren(platform)
     }
 
-    private recyclePlatform(platform: Platform) {
+    private recyclePlatform(platform: BasicPlatform) {
         // if platform is in the spawned platforms array
         // remove it from the parent object and add it to the platform pool
         // else do nothing
@@ -256,7 +254,7 @@ export class PlatformSpawner extends GameObjectDecorator {
         }
     }
 
-    private RemovePlatformFromParent(platform: Platform) {
+    private RemovePlatformFromParent(platform: BasicPlatform) {
         const parent = platform.getParent()
         if (parent !== undefined) {
             parent.removeChildren(platform)

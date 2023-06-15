@@ -1,7 +1,7 @@
 import { FPSCounter } from '../fpsCounter/FPSCounter'
-import { GameObject } from '../game-object/GameObject'
+import { GameObject } from '../engine/game-object/GameObject'
 import { canvasSize } from '../canvasSize'
-import { Transform } from '../transform/Transform'
+import { Transform } from '../engine/transform/Transform'
 
 // fps counter object
 export const fpsCounterGameObject = new GameObject({
