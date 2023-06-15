@@ -63,11 +63,11 @@ export class Wall extends GameObjectDecorator {
             })
         )
 
-        leftCollider.onCollision('collisionStay', ({other}) => {
+        leftCollider.onCollision('collisionStay', ({ other }) => {
             this.tryTeleportPlayer(true, other)
         })
 
-        rightCollider.onCollision('collisionStay', ({other}) => {
+        rightCollider.onCollision('collisionStay', ({ other }) => {
             this.tryTeleportPlayer(false, other)
         })
 
@@ -86,7 +86,8 @@ export class Wall extends GameObjectDecorator {
         }
 
         if (other.tag === 'Player') {
-            const otherParentTransform = otherTransform.getGameObject()?.getParent()?.getTransform() ?? null
+            const otherParentTransform =
+                otherTransform.getGameObject()?.getParent()?.getTransform() ?? null
 
             if (!otherParentTransform) {
                 // warn

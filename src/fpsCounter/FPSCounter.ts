@@ -16,8 +16,6 @@ export class FPSCounter extends GameComponentDecorator {
         this.lastTime = 0
         this.frameCount = 0
         this.label = component
-
-        
     }
 
     public init(gameObject: IGameObject): void {
@@ -27,7 +25,7 @@ export class FPSCounter extends GameComponentDecorator {
             this.lastTime = performance.now()
         })
 
-        this.on("update", (delta: number) => {
+        this.on('update', (delta: number) => {
             this.onUpdate(delta)
         })
     }

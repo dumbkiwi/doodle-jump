@@ -62,9 +62,11 @@ export class SpriteRenderer extends GameComponentDecorator {
         super.init(gameObject)
 
         // add render event
-        this.getGameObject()?.getGame()?.renderer.on('render', this.layer, () => {
-            this.render(this.getGameObject())
-        })
+        this.getGameObject()
+            ?.getGame()
+            ?.renderer.on('render', this.layer, () => {
+                this.render(this.getGameObject())
+            })
     }
 
     private render(gameObject: IGameObject | undefined) {

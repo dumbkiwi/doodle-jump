@@ -1,1 +1,7 @@
-type GameComponentType = 'Forbidden' | 'Collider' | 'Transform' | 'SpriteRenderer' | 'Label' | 'Rigidbody'
+type GameComponentType =
+    | 'Forbidden'
+    | 'Collider'
+    | 'Transform'
+    | 'SpriteRenderer'
+    | 'Label'
+    | 'Rigidbody'

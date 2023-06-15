@@ -43,14 +43,23 @@ export default class Physics {
                     isColliding = false
                 }
 
-                if (isColliding && collidingColliders.find((c) => c.colliderId === other.colliderId) === undefined) {
+                if (
+                    isColliding &&
+                    collidingColliders.find((c) => c.colliderId === other.colliderId) === undefined
+                ) {
                     // if they were not colliding, emit collisionEnter
                     collider.addCollidingCollider(other)
                     collider.emitCollision('collisionEnter', { self: collider, other })
-                } else if (isColliding && collidingColliders.find((c) => c.colliderId === other.colliderId) !== undefined) {
+                } else if (
+                    isColliding &&
+                    collidingColliders.find((c) => c.colliderId === other.colliderId) !== undefined
+                ) {
                     // if they were colliding, emit collisionStay
                     collider.emitCollision('collisionStay', { self: collider, other })
-                } else if (!isColliding && collidingColliders.find((c) => c.colliderId === other.colliderId) !== undefined) {
+                } else if (
+                    !isColliding &&
+                    collidingColliders.find((c) => c.colliderId === other.colliderId) !== undefined
+                ) {
                     // if they are not colliding, emit collisionExit
                     collider.removeCollidingCollider(other.colliderId)
                     collider.emitCollision('collisionExit', { self: collider, other })

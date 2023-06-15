@@ -1,4 +1,4 @@
-import ICollider  from '../engine/game-component/collider/Collider'
+import ICollider from '../engine/game-component/collider/Collider'
 import { RectangleCollider } from '../engine/game-component/collider/RectangleCollider'
 import { GameObject, GameObjectDecorator } from '../engine/game-object/GameObject'
 import { Game } from '../engine/game/Game'
@@ -124,14 +124,14 @@ export class PlatformSpawner extends GameObjectDecorator {
             }),
         ]
 
-        bufferCollider.onCollision('collisionExit', ({other}) => {
+        bufferCollider.onCollision('collisionExit', ({ other }) => {
             if (other.tag === 'Platform') {
                 // if a platform exits, spawn a new one
                 this.trySpawnPlatform()
             }
         })
 
-        despawnCollider.onCollision('collisionEnter', ({other}) => {
+        despawnCollider.onCollision('collisionEnter', ({ other }) => {
             // if it is a platform and it was created by this spawner
             const gameObject = other.getGameObject()
 
@@ -170,7 +170,9 @@ export class PlatformSpawner extends GameObjectDecorator {
     public override init(game: Game) {
         super.init(game)
 
-    this.on('start', () => {this.preparePlatform()})
+        this.on('start', () => {
+            this.preparePlatform()
+        })
     }
 
     private preparePlatform() {
@@ -194,7 +196,9 @@ export class PlatformSpawner extends GameObjectDecorator {
         // if there's no game object,
         // if there is no platform colling with the buffer collider
         if (
-            !this.bufferCollider.getCollidingColliders().some((collider) => collider.tag === 'Platform')
+            !this.bufferCollider
+                .getCollidingColliders()
+                .some((collider) => collider.tag === 'Platform')
         ) {
             this.spawnPlatform(game)
         }

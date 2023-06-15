@@ -1,6 +1,6 @@
-import { GameObject } from "@/engine/game-object/GameObject"
-import { GameComponent, GameComponentDecorator } from "../GameComponent"
-import { Transform } from "../transform/Transform"
+import { GameObject } from '@/engine/game-object/GameObject'
+import { GameComponent, GameComponentDecorator } from '../GameComponent'
+import { Transform } from '../transform/Transform'
 
 export default class Rigibody extends GameComponentDecorator {
     public velocity: Vector2D
@@ -11,13 +11,9 @@ export default class Rigibody extends GameComponentDecorator {
 
     private transform: Transform | undefined
 
-    public override getType = () => "Rigidbody" as GameComponentType
+    public override getType = () => 'Rigidbody' as GameComponentType
 
-    constructor(config?: {
-        mass?: number
-        gravity?: number
-        drag?: number
-    }) {
+    constructor(config?: { mass?: number; gravity?: number; drag?: number }) {
         const base = new GameComponent()
         super(base)
 
@@ -41,7 +37,7 @@ export default class Rigibody extends GameComponentDecorator {
     public update() {
         this.velocity.x += this.acceleration.x
         this.velocity.y += this.acceleration.y + this.gravity
-        
+
         // mult drag
         this.velocity.x *= 1 - this.drag
 

@@ -37,7 +37,7 @@ export class ScrollView extends GameObjectDecorator {
         this.scrollDistance = 0
         this.triggerCollider = triggerCollider
 
-        this.triggerCollider.onCollision('collisionStay', ({other}) => {
+        this.triggerCollider.onCollision('collisionStay', ({ other }) => {
             const rigidbody = other.getGameObject()?.getComponent<Rigibody>('Rigidbody')
 
             if (rigidbody && other.tag === 'Player' && rigidbody.velocity.y < 0) {
@@ -49,8 +49,10 @@ export class ScrollView extends GameObjectDecorator {
     public override init(game: Game) {
         super.init(game)
         this.scrollDistance = 0
-        
-        this.on('update', () => {this.move()})
+
+        this.on('update', () => {
+            this.move()
+        })
     }
 
     private move() {

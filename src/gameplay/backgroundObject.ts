@@ -15,10 +15,7 @@ export class BackgroundGameObject extends GameObjectDecorator {
     private smoothing: number
     private startingPosition
 
-    constructor(config: {
-        onGameOverScrollDistance: number
-        smoothing: number
-    }) {
+    constructor(config: { onGameOverScrollDistance: number; smoothing: number }) {
         // background collider
         const collider = new RectangleCollider({
             tag: 'Trigger',
@@ -33,9 +30,7 @@ export class BackgroundGameObject extends GameObjectDecorator {
             // debug: true,
         })
         const obj = new GameObject({
-            components: [
-                collider
-            ],
+            components: [collider],
             children: [
                 new GameObject({
                     components: [
@@ -114,32 +109,30 @@ export class BackgroundGameObject extends GameObjectDecorator {
                             baseColor: 'white',
                             imageSrc: bottomImage,
                         }),
-        
-                    ]
-                })
+                    ],
+                }),
             ],
         })
-        
+
         super(obj)
-        
+
         this.collider = collider
         this.transform = obj.getTransform()
         this.scrollDistance = config.onGameOverScrollDistance
         this.smoothing = config.smoothing
         this.startingPosition = this.transform.localPosition.y
-
     }
 
     private move() {
         if (this.collider.velocity.y > 0) {
-        this.transform.localPosition.y -= this.collider.velocity.y * this.smoothing
-        this.collider.velocity.y *= 1 - this.smoothing
+            this.transform.localPosition.y -= this.collider.velocity.y * this.smoothing
+            this.collider.velocity.y *= 1 - this.smoothing
         }
     }
 
     public override init(game: Game) {
         super.init(game)
-        this.on("update", () => {
+        this.on('update', () => {
             this.move()
         })
     }
@@ -153,4 +146,3 @@ export class BackgroundGameObject extends GameObjectDecorator {
         }
     }
 }
-

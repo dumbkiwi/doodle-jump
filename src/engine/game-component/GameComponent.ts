@@ -9,7 +9,7 @@ export interface IGameComponent extends IRuntimeObject {
     off(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void
     init(gameObject: IGameObject): void
     destroy(): void
-    
+
     //// utils
     getType(): GameComponentType
     getGameObject(): IGameObject | undefined
@@ -30,7 +30,7 @@ export class GameComponent implements IGameComponent {
     public on(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
         this.attachedGameObject?.on(event, callback)
     }
-    
+
     public once(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
         this.attachedGameObject?.once(event, callback)
     }
@@ -43,7 +43,6 @@ export class GameComponent implements IGameComponent {
         this.attachedGameObject = gameObject
 
         this.setActive(this.isActive)
-
     }
 
     public destroy(): void {
@@ -65,12 +64,15 @@ export class GameComponent implements IGameComponent {
         return this.isActive
     }
 
-    public getType() {return "Forbidden" as GameComponentType}
-    public getGameObject(): (IGameObject | undefined) {return this.attachedGameObject}
+    public getType() {
+        return 'Forbidden' as GameComponentType
+    }
+    public getGameObject(): IGameObject | undefined {
+        return this.attachedGameObject
+    }
     public setGameObject(value: IGameObject | undefined): void {
         this.attachedGameObject = value
     }
-
 }
 
 export class GameComponentDecorator implements IGameComponent {
@@ -110,8 +112,12 @@ export class GameComponentDecorator implements IGameComponent {
         return this.wrapper.getActive()
     }
 
-    public getType() {return this.wrapper.getType()}
-    public getGameObject() {return this.wrapper.getGameObject()}
+    public getType() {
+        return this.wrapper.getType()
+    }
+    public getGameObject() {
+        return this.wrapper.getGameObject()
+    }
     public setGameObject(value: IGameObject | undefined): void {
         this.wrapper.setGameObject(value)
     }

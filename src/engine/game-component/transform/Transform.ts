@@ -83,7 +83,9 @@ export class Transform extends GameComponentDecorator {
     // getters and setters for worldPosition
     public get worldPosition(): Vector2D {
         const parentTransform = this.getGameObject()?.getParent()?.getTransform()
-        return parentTransform ? Transform.toWorldSpace(this.localPosition, parentTransform) : this.localPosition
+        return parentTransform
+            ? Transform.toWorldSpace(this.localPosition, parentTransform)
+            : this.localPosition
     }
 
     public set worldPosition(value: Vector2D) {

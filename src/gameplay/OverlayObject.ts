@@ -58,16 +58,11 @@ export default class OverlayObject extends GameObjectDecorator {
             this.overlayObject.getGame()?.canvas.addEventListener('click', (e) => {
                 const canvas = this.overlayObject.getGame()?.canvas
                 const rect = canvas?.getBoundingClientRect()
-        
+
                 const x = e.clientX - (rect?.left ?? 0)
                 const y = e.clientY - (rect?.top ?? 0)
 
-                if (
-                    x > 160 &&
-                    x < 330 &&
-                    y > 290 &&
-                    y < 353
-                ) {
+                if (x > 160 && x < 330 && y > 290 && y < 353) {
                     console.log('clicked')
                     this.setActive(false)
                 }
@@ -75,6 +70,3 @@ export default class OverlayObject extends GameObjectDecorator {
         })
     }
 }
-
-
-

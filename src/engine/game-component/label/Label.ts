@@ -20,9 +20,11 @@ export class Label extends GameComponentDecorator {
 
     public init(gameObject: IGameObject): void {
         super.init(gameObject)
-        this.getGameObject()?.getGame()?.renderer.on('render', 'ui', ({context}: RenderEventArgs) => {
-            this.render(context)
-        })
+        this.getGameObject()
+            ?.getGame()
+            ?.renderer.on('render', 'ui', ({ context }: RenderEventArgs) => {
+                this.render(context)
+            })
     }
 
     public render(context: CanvasRenderingContext2D) {

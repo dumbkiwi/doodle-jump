@@ -17,42 +17,45 @@ export class BasicPlatform extends GameObjectDecorator {
             components: [],
         })
 
-        super(
-            gameObject  
-        )
+        super(gameObject)
 
-            const collider = new RectangleCollider({
-                tag: 'Platform',
-                position: {
-                    x: 0,
-                    y: -18,
-                },
-                size: {
-                    x: 60,
-                    y: 20,
-                },
-            })
+        const collider = new RectangleCollider({
+            tag: 'Platform',
+            position: {
+                x: 0,
+                y: -18,
+            },
+            size: {
+                x: 60,
+                y: 20,
+            },
+        })
 
-            collider.onCollision('collisionEnter', ({other}: CollisionEventArgs) => {
-                if (other.tag === 'Player') {
-                    const rigidbody = other.getGameObject()?.getComponent<Rigibody>("Rigidbody")
-                    if (!rigidbody) return
-                    // if player is falling down
-                    if (rigidbody.velocity.y > 0) {
-                        // set player's position to the top of the platform
-                        const otherTransform = other.getGameObject()?.getTransform()
-                        const otherParentTransform = other.getGameObject()?.getParent()?.getTransform()
-                        const thisCollider = this.getComponent<ICollider>("Collider")
-                        if (otherTransform && otherParentTransform && thisCollider) {
-                            otherTransform.localPosition.y = Transform.toLocalSpace({x: 0, y: thisCollider.top}, otherParentTransform).y - thisCollider.height * 2
-                        }
-
-                        // add bounciness
-                        rigidbody.velocity.y = 0
-                        rigidbody.addForce({x: 0, y: -config.bounciness})
+        collider.onCollision('collisionEnter', ({ other }: CollisionEventArgs) => {
+            if (other.tag === 'Player') {
+                const rigidbody = other.getGameObject()?.getComponent<Rigibody>('Rigidbody')
+                if (!rigidbody) return
+                // if player is falling down
+                if (rigidbody.velocity.y > 0) {
+                    // set player's position to the top of the platform
+                    const otherTransform = other.getGameObject()?.getTransform()
+                    const otherParentTransform = other.getGameObject()?.getParent()?.getTransform()
+                    const thisCollider = this.getComponent<ICollider>('Collider')
+                    if (otherTransform && otherParentTransform && thisCollider) {
+                        otherTransform.localPosition.y =
+                            Transform.toLocalSpace(
+                                { x: 0, y: thisCollider.top },
+                                otherParentTransform
+                            ).y -
+                            thisCollider.height * 2
                     }
+
+                    // add bounciness
+                    rigidbody.velocity.y = 0
+                    rigidbody.addForce({ x: 0, y: -config.bounciness })
                 }
-            })
+            }
+        })
 
         const platformComponents = [
             new SpriteRenderer({

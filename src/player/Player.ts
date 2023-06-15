@@ -80,15 +80,22 @@ export class Player extends GameObjectDecorator {
 
         this.on('update', () => {
             // update score
-            this.score = this.getTransform().localPosition.y < this.score ? this.getTransform().localPosition.y : this.score
+            this.score =
+                this.getTransform().localPosition.y < this.score
+                    ? this.getTransform().localPosition.y
+                    : this.score
             this.move()
         })
 
         // subscribe velocity control to keydown event
-        document.addEventListener('keydown', (e) => {this.onKeyDown(e)})
+        document.addEventListener('keydown', (e) => {
+            this.onKeyDown(e)
+        })
 
         // subscribe velocity control to keyup event
-        document.addEventListener('keyup', (e) => {this.onKeyUp(e)})
+        document.addEventListener('keyup', (e) => {
+            this.onKeyUp(e)
+        })
     }
 
     private move(): void {

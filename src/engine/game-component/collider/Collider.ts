@@ -1,4 +1,4 @@
-import { IGameComponent } from "../GameComponent"
+import { IGameComponent } from '../GameComponent'
 
 export interface CollisionEventArgs {
     self: ICollider
@@ -28,12 +28,12 @@ export default interface ICollider extends IGameComponent {
 
     velocity: Vector2D
     acceleration: Vector2D
-    
+
     mass: number
 
     x: number
     y: number
-    
+
     width: number
     height: number
 

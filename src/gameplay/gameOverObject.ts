@@ -1,9 +1,9 @@
-import { canvasSize } from "@/canvasSize"
-import { RectangleCollider } from "@/engine/game-component/collider/RectangleCollider"
-import { GameObject, GameObjectDecorator } from "@/engine/game-object/GameObject"
-import { BackgroundGameObject } from "./backgroundObject"
-import { ScrollView } from "@/engine/game-object/scrollView/ScrollView"
-import ICollider from "@/engine/game-component/collider/Collider"
+import { canvasSize } from '@/canvasSize'
+import { RectangleCollider } from '@/engine/game-component/collider/RectangleCollider'
+import { GameObject, GameObjectDecorator } from '@/engine/game-object/GameObject'
+import { BackgroundGameObject } from './backgroundObject'
+import { ScrollView } from '@/engine/game-object/scrollView/ScrollView'
+import ICollider from '@/engine/game-component/collider/Collider'
 
 export class GameOverTrigger extends GameObjectDecorator {
     private background: BackgroundGameObject
@@ -28,13 +28,13 @@ export class GameOverTrigger extends GameObjectDecorator {
             // debug: true
         })
 
-        gameOverCollider.onCollision('collisionEnter', ({other}) => {
+        gameOverCollider.onCollision('collisionEnter', ({ other }) => {
             if (other.tag === 'Player') {
                 console.log('game over')
-                
+
                 this.background.setGameOver(true)
                 this.scrollview.setScrollDistance(-600)
-                
+
                 this.collider.setActive(false)
             }
         })
@@ -42,7 +42,7 @@ export class GameOverTrigger extends GameObjectDecorator {
         const gameObject = new GameObject({
             components: [
                 // collider beneath the screen
-                gameOverCollider,     
+                gameOverCollider,
             ],
         })
 

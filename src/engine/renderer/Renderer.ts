@@ -35,11 +35,19 @@ export class Renderer implements IRenderer {
         })
     }
 
-    public on(event: RenderEvent, layer: RenderingLayer, callback: (...args: RenderEventArgs[]) => void): void {
+    public on(
+        event: RenderEvent,
+        layer: RenderingLayer,
+        callback: (...args: RenderEventArgs[]) => void
+    ): void {
         this.layeredEventManager.on(event, layer, callback)
     }
 
-    public off(event: RenderEvent, layer: RenderingLayer, callback: (...args: RenderEventArgs[]) => void): void {
+    public off(
+        event: RenderEvent,
+        layer: RenderingLayer,
+        callback: (...args: RenderEventArgs[]) => void
+    ): void {
         this.layeredEventManager.off(event, layer, callback)
     }
 

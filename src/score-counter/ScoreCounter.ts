@@ -23,8 +23,8 @@ export class ScoreCounter extends GameComponentDecorator {
 
         this.on('update', () => {
             this.label.config.text = `Score: ${Math.floor(
-            Math.round(-this.player.getScore() / 10)
-        )}`
+                Math.round(-this.player.getScore() / 10)
+            )}`
         })
     }
 }

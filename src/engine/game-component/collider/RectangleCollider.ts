@@ -10,7 +10,7 @@ export class RectangleCollider extends GameComponentDecorator implements ICollid
 
     public colliderId = -1
     public mass = 1
-    public tag: ColliderTag = "Default"
+    public tag: ColliderTag = 'Default'
     public velocity: Vector2D
     public acceleration: Vector2D
 
@@ -22,8 +22,7 @@ export class RectangleCollider extends GameComponentDecorator implements ICollid
 
     public set x(value: number) {
         this.offsetFromTransform.x = this.transform
-            ? Transform.toLocalSpace({ x: value, y: this.offsetFromTransform.y }, this.transform)
-                  .x
+            ? Transform.toLocalSpace({ x: value, y: this.offsetFromTransform.y }, this.transform).x
             : value
     }
 
@@ -35,11 +34,10 @@ export class RectangleCollider extends GameComponentDecorator implements ICollid
 
     public set y(value: number) {
         this.offsetFromTransform.y = this.transform
-            ? Transform.toLocalSpace({ x: this.offsetFromTransform.x, y: value }, this.transform)
-                  .y
+            ? Transform.toLocalSpace({ x: this.offsetFromTransform.x, y: value }, this.transform).y
             : value
     }
-    
+
     public get width(): number {
         return this.size.x
     }
@@ -129,7 +127,7 @@ export class RectangleCollider extends GameComponentDecorator implements ICollid
         }
     }
 
-    public getType = () => "Collider" as GameComponentType
+    public getType = () => 'Collider' as GameComponentType
     public getColliderType = () => 'RectangleCollider' as ColliderType
     public getCollidingColliders(): ICollider[] {
         return this.collidingWith
@@ -140,9 +138,10 @@ export class RectangleCollider extends GameComponentDecorator implements ICollid
 
     public removeCollidingCollider(colliderId: number): void {
         // remove collider with id
-        this.collidingWith = this.collidingWith.filter((collider) => collider.colliderId !== colliderId)
+        this.collidingWith = this.collidingWith.filter(
+            (collider) => collider.colliderId !== colliderId
+        )
     }
-        
 
     // runtime
     public onCollision(event: ColliderEvent, callback: (args: CollisionEventArgs) => void): void {
@@ -235,9 +234,7 @@ export class RectangleCollider extends GameComponentDecorator implements ICollid
     public setActive(value: boolean): void {
         super.setActive(value)
         if (value === true && this.colliderId === -1) {
-            this.colliderId = this.getGameObject()
-                ?.getGame()
-                ?.physics.registerCollider(this) ?? -1
+            this.colliderId = this.getGameObject()?.getGame()?.physics.registerCollider(this) ?? -1
         } else if (value === false) {
             if (this.colliderId === -1) {
                 throw new Error('Collider id is -1')

@@ -25,7 +25,7 @@ export class MovingPlatform extends BasicPlatform {
     public override init(game: Game) {
         super.init(game)
 
-        this.collider.onCollision('collisionEnter', ({other}: CollisionEventArgs) => {
+        this.collider.onCollision('collisionEnter', ({ other }: CollisionEventArgs) => {
             // if other is a platform and is on the right of this platform, reverse direction
             if (other.tag === 'Wall') {
                 if (other.x > this.collider.x) {
