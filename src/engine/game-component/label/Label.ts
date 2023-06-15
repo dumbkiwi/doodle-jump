@@ -1,4 +1,4 @@
-import { GameComponent } from '../game-component/GameComponent'
+import { GameComponent } from '../GameComponent'
 
 export class Label extends GameComponent {
     public config: LabelConfig

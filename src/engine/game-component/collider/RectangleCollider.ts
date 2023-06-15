@@ -1,8 +1,8 @@
-import { SpriteRenderer } from '@/engine/sprite-renderer/SpriteRenderer'
-import { EventManager } from '../event/Event'
-import { GameObject } from '../game-object/GameObject'
+import { SpriteRenderer } from '@/engine/game-component/sprite-renderer/SpriteRenderer'
+import { EventManager } from '../../event/Event'
+import { GameObject } from '../../game-object/GameObject'
 import { Collider } from './Collider'
-import { Transform } from '@/engine/transform/Transform'
+import { Transform } from '@/engine/game-component/transform/Transform'
 
 export class RectangleCollider extends Collider {
     public getColliderType = () => 'RectangleCollider' as ColliderType

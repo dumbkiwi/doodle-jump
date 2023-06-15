@@ -1,11 +1,11 @@
-import { Collider } from '../engine/collider/Collider'
-import { RectangleCollider } from '../engine/collider/RectangleCollider'
+import { Collider } from '../engine/game-component/collider/Collider'
+import { RectangleCollider } from '../engine/game-component/collider/RectangleCollider'
 import { GameObject, GameObjectDecorator } from '../engine/game-object/GameObject'
 import { Game } from '../engine/game/Game'
-import { SpriteRenderer } from '../engine/sprite-renderer/SpriteRenderer'
+import { SpriteRenderer } from '../engine/game-component/sprite-renderer/SpriteRenderer'
 
 import platformImage from '#/doodle-jump/platform-base@2x.png'
-import { Transform } from '@/engine/transform/Transform'
+import { Transform } from '@/engine/game-component/transform/Transform'
 
 export class BasicPlatform extends GameObjectDecorator {
     constructor(config: PlatformConfig) {

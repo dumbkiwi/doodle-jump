@@ -1,5 +1,5 @@
-import { GameComponent } from '../game-component/GameComponent'
-import { GameObject } from '../game-object/GameObject'
+import { GameComponent } from '../GameComponent'
+import { GameObject } from '../../game-object/GameObject'
 
 export class Transform extends GameComponent {
     // TODO: implement world variants

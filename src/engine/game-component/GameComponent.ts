@@ -1,55 +1,51 @@
 import { IGameObject } from '../game-object/GameObject'
 import { IRuntimeObject } from '../runtime-object/IRuntimeObject'
 
-export abstract class GameComponent implements IRuntimeObject {
+export interface IGameComponent extends IRuntimeObject {
+    // methods
+    //// runtime
+    on(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void
+    once(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void
+    off(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void
+    init(gameObject: IGameObject): void
+    destroy(): void
+    
+    //// utils
+    getType(): GameComponentType
+    getGameObject(): IGameObject | undefined
+    setGameObject(value: IGameObject | undefined): void
+}
+
+export class GameComponent implements IGameComponent {
+    private attachedGameObject: IGameObject | undefined
     protected isActive: boolean
     protected isDestroyed: boolean
-    protected gameObject: IGameObject | undefined
-    protected onStart: (() => void) | undefined
-    protected onUpdate: ((delta: number) => void) | undefined
-    protected onDestroy: (() => void) | undefined
 
     constructor() {
         this.isDestroyed = false
         this.isActive = true
-
-        // binds
-        this.start = this.start.bind(this)
-        this.update = this.update.bind(this)
     }
 
-    public abstract getType(): GameComponentType
-    public getGameObject(): IGameObject | undefined {
-        return this.gameObject
+    //// runtime
+    public on(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
+        this.attachedGameObject?.on(event, callback)
     }
-    public setGameObject(value: IGameObject | undefined): void {
-        this.gameObject = value
+    
+    public once(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
+        this.attachedGameObject?.once(event, callback)
     }
+
+    public off(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
+        this.attachedGameObject?.off(event, callback)
+    }
+
     public init(gameObject: IGameObject): void {
-        this.gameObject = gameObject
+        this.attachedGameObject = gameObject
 
-        this.gameObject.getGame()?.events.on('start', this.start.bind(this))
-        this.gameObject.getGame()?.events.on('update', this.update.bind(this))
+        this.setActive(this.isActive)
 
-        if (this.isActive) {
-            this.setActive(true)
-        }
     }
-    private start(): void {
-        // if not active, return
-        if (!this.isActive) {
-            return
-        }
-        this.onStart?.()
-    }
-    private update(delta: number): void {
-        // if not active, return
-        if (!this.isActive) {
-            return
-        }
 
-        this.onUpdate?.(delta)
-    }
     public destroy(): void {
         if (this.isDestroyed) {
             throw new Error('Cannot destroy a destroyed game component')
@@ -57,13 +53,66 @@ export abstract class GameComponent implements IRuntimeObject {
 
         this.isDestroyed = true
 
-        this.onDestroy?.()
+        this.attachedGameObject = undefined
     }
+
+    // utils
     public setActive(value: boolean): void {
         this.isActive = value
     }
+
     public getActive(): boolean {
         return this.isActive
     }
+
+    public getType = () => "Forbidden" as GameComponentType
+    public getGameObject: () => (IGameObject | undefined) = () => this.attachedGameObject
+    public setGameObject(value: IGameObject | undefined): void {
+        this.attachedGameObject = value
+    }
+
 }
 
+export class GameComponentDecorator implements IGameComponent {
+    protected wrapper: IGameComponent
+
+    constructor(wrapper: IGameComponent) {
+        this.wrapper = wrapper
+    }
+
+    //// runtime
+    public on(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
+        this.wrapper.on(event, callback)
+    }
+
+    public once(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
+        this.wrapper.once(event, callback)
+    }
+
+    public off(event: GameEvent, callback: (() => void) | ((delta: number) => void)): void {
+        this.wrapper.off(event, callback)
+    }
+
+    public init(gameObject: IGameObject): void {
+        this.wrapper.init(gameObject)
+    }
+
+    public destroy(): void {
+        this.wrapper.destroy()
+    }
+
+    // utils
+    public setActive(value: boolean): void {
+        this.wrapper.setActive(value)
+    }
+
+    public getActive(): boolean {
+        return this.wrapper.getActive()
+    }
+
+    public getType = () => this.wrapper.getType()
+    public getGameObject: () => (IGameObject | undefined) = () => this.wrapper.getGameObject()
+    public setGameObject(value: IGameObject | undefined): void {
+        this.wrapper.setGameObject(value)
+    }
+}

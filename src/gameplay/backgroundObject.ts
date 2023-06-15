@@ -1,10 +1,10 @@
 import { GameObject, GameObjectDecorator } from '../engine/game-object/GameObject'
-import { SpriteRenderer } from '../engine/sprite-renderer/SpriteRenderer'
-import { Transform } from '../engine/transform/Transform'
+import { SpriteRenderer } from '../engine/game-component/sprite-renderer/SpriteRenderer'
+import { Transform } from '../engine/game-component/transform/Transform'
 
 import backgroundImage from '#/doodle-jump/bck@2x.png'
 import bottomImage from '#/doodle-jump/bottom-tile@2x.png'
-import { RectangleCollider } from '@/engine/collider/RectangleCollider'
+import { RectangleCollider } from '@/engine/game-component/collider/RectangleCollider'
 import { Game } from '@/engine/game/Game'
 
 // background object

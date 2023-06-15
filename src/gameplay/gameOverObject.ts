@@ -1,9 +1,9 @@
 import { canvasSize } from "@/canvasSize"
-import { RectangleCollider } from "@/engine/collider/RectangleCollider"
+import { RectangleCollider } from "@/engine/game-component/collider/RectangleCollider"
 import { GameObject, GameObjectDecorator } from "@/engine/game-object/GameObject"
 import { BackgroundGameObject } from "./backgroundObject"
-import { ScrollView } from "@/engine/scrollView/ScrollView"
-import { Collider } from "@/engine/collider/Collider"
+import { ScrollView } from "@/engine/game-object/scrollView/ScrollView"
+import { Collider } from "@/engine/game-component/collider/Collider"
 
 export class GameOverTrigger extends GameObjectDecorator {
     private background: BackgroundGameObject

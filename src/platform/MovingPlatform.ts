@@ -1,4 +1,4 @@
-import { Collider } from '@/engine/collider/Collider'
+import { Collider } from '@/engine/game-component/collider/Collider'
 import { BasicPlatform } from './BasicPlatform'
 import { Game } from '@/engine/game/Game'
 

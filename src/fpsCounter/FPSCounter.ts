@@ -1,4 +1,4 @@
-import { Label } from '../engine/label/Label'
+import { Label } from '../engine/game-component/label/Label'
 
 export class FPSCounter extends Label {
     private fps: number

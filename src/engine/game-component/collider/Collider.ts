@@ -1,5 +1,5 @@
-import { GameComponent } from '../game-component/GameComponent'
-import { Game } from '../game/Game'
+import { GameComponent } from '../GameComponent'
+import { Game } from '../../game/Game'
 
 export abstract class Collider extends GameComponent {
     private static readonly activeColliders: Collider[] = []

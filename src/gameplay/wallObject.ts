@@ -1,8 +1,8 @@
 import { canvasSize } from '@/canvasSize'
-import { Collider } from '@/engine/collider/Collider'
-import { RectangleCollider } from '@/engine/collider/RectangleCollider'
+import { Collider } from '@/engine/game-component/collider/Collider'
+import { RectangleCollider } from '@/engine/game-component/collider/RectangleCollider'
 import { GameObject, GameObjectDecorator } from '@/engine/game-object/GameObject'
-import { Transform } from '@/engine/transform/Transform'
+import { Transform } from '@/engine/game-component/transform/Transform'
 
 export class Wall extends GameObjectDecorator {
     private leftCollider: Collider

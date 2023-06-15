@@ -1,7 +1,7 @@
 import { GameComponent } from '../game-component/GameComponent'
 import { Game } from '../game/Game'
 import { IRuntimeObject } from '../runtime-object/IRuntimeObject'
-import { Transform } from '../transform/Transform'
+import { Transform } from '../game-component/transform/Transform'
 
 export interface IGameObject extends IRuntimeObject {
     // fields TODO: move to decorator

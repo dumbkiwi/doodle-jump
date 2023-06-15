@@ -1,7 +1,7 @@
 import { GameObject } from '../engine/game-object/GameObject'
-import { Label } from '../engine/label/Label'
+import { Label } from '../engine/game-component/label/Label'
 import { canvasSize } from '../canvasSize'
-import { Transform } from '../engine/transform/Transform'
+import { Transform } from '../engine/game-component/transform/Transform'
 
 // instructions object
 export const instructionsGameObject = new GameObject({
