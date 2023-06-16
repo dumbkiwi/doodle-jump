@@ -1,7 +1,7 @@
-import { RectangleCollider } from '../engine/game-component/collider/RectangleCollider'
-import { GameObject, GameObjectDecorator } from '../engine/game-object/GameObject'
-import { Game } from '../engine/game/Game'
-import { SpriteRenderer } from '../engine/game-component/sprite-renderer/SpriteRenderer'
+import { RectangleCollider } from '@/engine/game-component/collider/RectangleCollider'
+import { GameObject, GameObjectDecorator } from '@/engine/game-object/GameObject'
+import { Game } from '@/engine/game/Game'
+import { SpriteRenderer } from '@/engine/game-component/sprite-renderer/SpriteRenderer'
 
 import platformImage from '#/doodle-jump/platform-base@2x.png'
 import { Transform } from '@/engine/game-component/transform/Transform'

@@ -1,4 +1,4 @@
-import { FPSCounter } from '../fpsCounter/FPSCounter'
+import { FPSCounter } from './fpsCounter/FPSCounter'
 import { GameObject } from '../engine/game-object/GameObject'
 import { canvasSize } from '../canvasSize'
 import { Transform } from '../engine/game-component/transform/Transform'

@@ -1,5 +1,5 @@
 import { GameComponent, GameComponentDecorator } from '../GameComponent'
-import { IGameObject } from '../../game-object/GameObject'
+import { IGameObject } from '@/engine/game-object/GameObject'
 
 export class SpriteRenderer extends GameComponentDecorator {
     public layer: RenderingLayer

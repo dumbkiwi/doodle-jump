@@ -1,10 +1,10 @@
-import ICollider from '../engine/game-component/collider/Collider'
-import { RectangleCollider } from '../engine/game-component/collider/RectangleCollider'
-import { GameObject, GameObjectDecorator } from '../engine/game-object/GameObject'
-import { Game } from '../engine/game/Game'
+import ICollider from '@/engine/game-component/collider/Collider'
+import { RectangleCollider } from '@/engine/game-component/collider/RectangleCollider'
+import { GameObject, GameObjectDecorator } from '@/engine/game-object/GameObject'
+import { Game } from '@/engine/game/Game'
 import { BasicPlatform } from '../platform/BasicPlatform'
-import { SpriteRenderer } from '../engine/game-component/sprite-renderer/SpriteRenderer'
-import { Transform } from '../engine/game-component/transform/Transform'
+import { SpriteRenderer } from '@/engine/game-component/sprite-renderer/SpriteRenderer'
+import { Transform } from '@/engine/game-component/transform/Transform'
 
 export type PlatformSpawnerConfig = Partial<GameObjectConfig> & {
     canvasSize: Vector2D

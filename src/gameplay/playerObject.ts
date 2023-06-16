@@ -1,5 +1,5 @@
 import { canvasSize } from '../canvasSize'
-import { Player } from '../player/Player'
+import { Player } from './player/Player'
 
 // player
 const player = new Player({

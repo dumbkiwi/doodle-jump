@@ -1,5 +1,5 @@
 import { GameComponent, GameComponentDecorator } from '../GameComponent'
-import { GameObject } from '../../game-object/GameObject'
+import { GameObject } from '@/engine/game-object/GameObject'
 
 export class Transform extends GameComponentDecorator {
     // TODO: implement world variants

@@ -1,5 +1,5 @@
 import { GameComponentDecorator } from '@/engine/game-component/GameComponent'
-import { Label } from '../engine/game-component/label/Label'
+import { Label } from '@/engine/game-component/label/Label'
 import { IGameObject } from '@/engine/game-object/GameObject'
 
 export class FPSCounter extends GameComponentDecorator {

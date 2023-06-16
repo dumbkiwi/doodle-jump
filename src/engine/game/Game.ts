@@ -1,8 +1,8 @@
 import { Renderer } from '@/engine/renderer/Renderer'
-import { RequestAnimationFrame } from '../dom/RequestAnimationFrame'
-import { EventManager } from '../event/Event'
-import { IGameObject } from '../game-object/GameObject'
-import Physics from '../physics/Physics'
+import { RequestAnimationFrame } from '@/engine/dom/RequestAnimationFrame'
+import { EventManager } from '@/engine/event/Event'
+import { IGameObject } from '@/engine/game-object/GameObject'
+import Physics from '@/engine/physics/Physics'
 
 export class Game {
     public canvas: HTMLCanvasElement

@@ -1,6 +1,6 @@
 import { SpriteRenderer } from '@/engine/game-component/sprite-renderer/SpriteRenderer'
-import { EventManager } from '../../event/Event'
-import { GameObject } from '../../game-object/GameObject'
+import { EventManager } from '@/engine/event/Event'
+import { GameObject } from '@/engine/game-object/GameObject'
 import ICollider, { CollisionEventArgs } from './Collider'
 import { Transform } from '@/engine/game-component/transform/Transform'
 import { GameComponent, GameComponentDecorator } from '../GameComponent'

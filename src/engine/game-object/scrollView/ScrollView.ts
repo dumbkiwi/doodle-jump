@@ -1,7 +1,7 @@
-import { RectangleCollider } from '../../game-component/collider/RectangleCollider'
+import { RectangleCollider } from '@/engine/game-component/collider/RectangleCollider'
 import { GameObject, GameObjectDecorator } from '../GameObject'
-import { Game } from '../../game/Game'
-import { Transform } from '../../game-component/transform/Transform'
+import { Game } from '@/engine/game/Game'
+import { Transform } from '@/engine/game-component/transform/Transform'
 import Rigibody from '@/engine/game-component/rigidbody/Rigidbody'
 
 export class ScrollView extends GameObjectDecorator {

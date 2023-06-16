@@ -1,8 +1,8 @@
-import { GameObject, IGameObject } from '../engine/game-object/GameObject'
-import { Label } from '../engine/game-component/label/Label'
-import { Transform } from '../engine/game-component/transform/Transform'
+import { GameObject, IGameObject } from '../../engine/game-object/GameObject'
+import { Label } from '../../engine/game-component/label/Label'
+import { Transform } from '../../engine/game-component/transform/Transform'
 import { GameComponentDecorator } from '@/engine/game-component/GameComponent'
-import { Player } from '@/player/Player'
+import { Player } from '@/gameplay/player/Player'
 
 export class ScoreCounter extends GameComponentDecorator {
     private scrollViewTransform: Transform

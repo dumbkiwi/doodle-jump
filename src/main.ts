@@ -8,13 +8,13 @@ import { canvasSize } from './canvasSize'
 import { ScrollView } from './engine/game-object/scrollView/ScrollView'
 import { RectangleCollider } from './engine/game-component/collider/RectangleCollider'
 import { GameObject } from './engine/game-object/GameObject'
-import { BasicPlatform } from './platform/BasicPlatform'
-import { PlatformSpawner } from './gameplay/PlatformSpawner'
+import { BasicPlatform } from './gameplay/platform/BasicPlatform'
+import { PlatformSpawner } from './gameplay/platform-spawner/PlatformSpawner'
 import { Transform } from './engine/game-component/transform/Transform'
-import { ScoreCounter } from './score-counter/ScoreCounter'
+import { ScoreCounter } from './gameplay/score-counter/ScoreCounter'
 import { Wall } from './gameplay/wallObject'
 import { GameOverTrigger } from './gameplay/gameOverObject'
-import OverlayObject from './gameplay/OverlayObject'
+import OverlayObject from './gameplay/overlay-object/OverlayObject'
 
 const scrollViewGameObject = new ScrollView({
     smoothing: 0.2,
